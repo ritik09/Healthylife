@@ -6,11 +6,12 @@ from django.core.validators import RegexValidator
 
 # Create your models here.
 class User(AbstractUser):
+
     username=models.CharField(max_length=200,unique=True)
     email=models.EmailField(max_length=200,unique=True,help_text='Required')
     first_name=models.CharField(max_length=200)
     last_name=models.CharField(max_length=200)
-    phone_number=models.CharField(max_length=12,validators=[MinLengthValidator(9)])
+    phone=models.CharField(max_length=12,validators=[MinLengthValidator(9)],unique=True)
     password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50) 
 
 class Meta:
@@ -20,3 +21,8 @@ class Meta:
 
     def _str_(self):
         return self.username
+
+class PhoneOtp(models.Model):
+    receiver = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
+    otp = models.IntegerField(null=False,blank=False)
+    

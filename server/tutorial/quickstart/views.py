@@ -6,10 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework import views
 from rest_framework.response import Response
-
+from django.template.loader import render_to_string
+from .models import User,PhoneOtp
 from rest_framework_jwt.settings import api_settings
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer, GroupSerializer,LoginSerializer
+from quickstart.serializers import UserSerializer, GroupSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -18,49 +19,17 @@ from rest_framework import status,permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from .serializers import UserSerializer
+from django.core.mail import send_mail
+from tutorial.settings import EMAIL_HOST_USER
+from random import *
+from .models import PhoneOtp
 from django.contrib.auth import authenticate, login
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+import random
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-# @api_view(['GET'])
-# def current_user(request):
-#     serializer = UserSerializer(request.user)
-#     return Response(serializer.data)
-
-# class UserList(APIView):
-#     permission_classes = (permissions.AllowAny,)
-#     def post(self, request, format=None):
-#         serializer = UserSerializerWithToken(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class CustomAuthToken(ObtainAuthToken):
-    
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data,
-#                                            context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({
-#             'token': token.key,
-#             'user_id': user.pk,
-#             'email': user.email
-#         })
-# class usertoken(ObtainAuthToken):
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data,
-#                                            context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-        
-#         return Response('obtain_jwt_token')
-            
-        
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset=User.objects.all().order_by('-date_joined')
@@ -83,73 +52,62 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
-class LoginView(views.APIView):
-    # permission_classes = (permissions.AllowAny, )
-    # def post(self,request):
-    #     user = request.data.get('user')
-    #     if not user:
-    #         return Response({'response' : 'error', 'message' : 'No data found'})
-    #     serializer = LoginSerializer(data = user)
-    #     if serializer.is_valid():
-    #         saved_user = serializer.save()
-    #     else:
-    #         return Response({"response" : "error", "message" : serializer.errors})
-    #     return Response({"response" : "success", "message" : "user created succesfully"})
-    # def post(self, request, *args, **kwargs):
-    #     username = request.data.get("username", "")
-    #     password = request.data.get("password", "")
-    #     user = authenticate(request, username=username, password=password)
-    #     if user is not None:
-    #         # login saves the user’s ID in the session,
-    #         # using Django’s session framework.
-    #         login(request, user)
-    #         serializer = LoginSerializer(data={
-    #             # using drf jwt utility functions to generate a token
-    #             "token": jwt_encode_handler(
-    #                 jwt_payload_handler(user)
-    #             )})
-    #         serializer.is_valid()
-    #         return Response(serializer.data)
-    #     return Response(status=status.HTTP_401_UNAUTHORIZED)
-    # queryset=User.objects.all().order_by('-date_joined')
-    # serializer_class = UserSerializer
-
-    # def get(self,request,format=None):
-    #     users = User.objects.all()
-    #     serializer = LoginSerializer(users, many=True)
-    #     return Response(serializer.data)
-    # serializer_class = LoginSerializer
-    serializer_class = LoginSerializer
+class SignUp(APIView):
     def post(self, request, *args, **kwargs):
-        if not request.data:
-            return Response({'Error': "Please provide username/password"}, status="400")
-        
-        username = request.data['username']
-        password = request.data['password']
-        try:
-            user = User.objects.get(username=username, password=password)
-        except User.DoesNotExist:
-            return Response({'Error': "Invalid username/password"}, status="400")
-        if user:
-            payload = {
-                'id': user.id,
-                'email': user.email,
-            }
-            jwt_token = {'token': jwt.encode(payload, "SECRET_KEY")}
+        serializer = UserSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        first_name = serializer.validated_data['first_name']
+        last_name = serializer.validated_data['last_name']
+        phone = serializer.validated_data['phone']
+        user = User.objects.create_user(username=username,email=email,password=password,first_name=first_name,last_name=last_name,phone=phone)
+        otp = randint(999,9999)
+        data = PhoneOtp.objects.create(otp=otp,receiver=user)
+        data.save()
+        user.is_active = False
+        user.save()
+        subject = 'Activate Your Account'
+        message = render_to_string('accountactivate.html', {
+            'user': user,
+            'OTP': otp,
+         })
+        from_mail = EMAIL_HOST_USER
+        to_mail = [user.email]
+        send_mail(subject, message, from_mail, to_mail, fail_silently=False)
+        return Response({'details': 'Please confirm your otp to complete registration.',
+                                'user_id': user.id })
 
-            return HttpResponse(
-              json.dumps(jwt_token),
-              status=200,
-              content_type="application/json"
-            )
-        else:
-            return Response(
-              json.dumps({'Error': "Invalid credentials"}),
-              status=400,
-              content_type="application/json"
-            )
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    
-
-    
+# class validateotp(APIView):
+#     def post(self,request,*args,**kwargs):
+#         phone_number = request.data.get('phone')
+#         if phone_number:
+#             phone = str(phone_number)
+#             user = User.objects.filter(phone_iexact=phone)
+#             if user.exists():
+#                 return Response({
+#                     'detail':'phone number already exists',
+#                 })
+#             else:
+#                 key = send_otp(phone)
+#                 if key:
+#                     PhoneOtp.objects.create(
+#                         phone = phone,
+#                         otp = key,
+#                     )
+#                 else:
+#                     return Response({
+#                         'status':True,
+#                         'detail':'otp sent successfully'
+#                     })
+#         else:
+#             return Response({
+#             'detail':'phone number is not given'
+#             })
+# def send_otp(phone):
+#     if phone:
+#         key = random.randint(999,9999)
+#         return key
+#     else:
+#         return False
