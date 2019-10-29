@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'corsheaders',
     'rest_framework',
     # 'rest_framework.authtoken',
@@ -217,4 +218,15 @@ PHONE_VERIFICATION = {
     'APP_NAME': 'Phone Verify',
     'SECURITY_CODE_EXPIRATION_TIME': 3600,  
     'VERIFY_SECURITY_CODE_ONLY_ONCE': False,  # If False, then a security code can be used multiple times for verification
+}
+
+ASGI_APPLICATION = "tutorial.routing.application"
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }

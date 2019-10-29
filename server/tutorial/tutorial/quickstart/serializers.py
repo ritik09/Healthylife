@@ -3,7 +3,7 @@ from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
-from .models import PhoneOtp,Hospital_Name,Rating
+from .models import PhoneOtp,Hospital_Name,Rating,Enquiry
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth import get_user_model
@@ -85,3 +85,7 @@ class RatingSerializer(serializers.ModelSerializer):
         model = Rating
         fields = ['user']
         
+class EnquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enquiry
+        fields = ['Full_Name','age','gender','Specialist','Problem']

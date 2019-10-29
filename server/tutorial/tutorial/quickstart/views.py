@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 import jwt,json
+from django.shortcuts import render
+from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework import views
@@ -21,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework import status,permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .serializers import UserSerializer,PhoneOtpSerializer,HospitalSerializer
+from .serializers import UserSerializer,PhoneOtpSerializer,HospitalSerializer,EnquirySerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from random import *
@@ -153,3 +155,28 @@ class HospitalViewSet(viewsets.ModelViewSet):
 
 def jwt_get_username_from_payload_handler(payload):
     return payload.get('username')
+
+
+class Enquiry(APIView):
+    serializer_class = EnquirySerializer
+    def get(self,request,format=None):
+        enquiry=Enquiry.objects.all()
+    def post(self, request, format=None):
+        serializer = EnquirySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class DoctorEnquiry(APIView):
+#     def get(self,request,format=None):
+        
+#         enquiry = Enquiry.objects.filter(Specialist=request.user.category)
+   
+def index(request):
+    return render(request, 'quickstart/index.html', {})
+
+def room(request, room_name):
+    return render(request, 'quickstart/room.html', {
+        'room_name_json': mark_safe(json.dumps(room_name))
+    })
