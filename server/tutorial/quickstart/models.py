@@ -8,7 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 class User(AbstractUser):
     username=models.CharField(max_length=200,unique=True)
-    email=models.EmailField(max_length=200,unique=True,help_text='Required')
+    email=models.EmailField(max_length=200,help_text='Required')
     first_name=models.CharField(max_length=200)
     last_name=models.CharField(max_length=200)
     password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50) 
@@ -100,19 +100,12 @@ class Enquiry(models.Model):
     Specialist = models.CharField(max_length=100,choices=category2)
     Problem = models.TextField(max_length=300)
 
-# def validate_message_content(content):
-#     if content is None or content == "" or content.isspace():
-#         raise ValidationError(
-#             'Content is empty/invalid',
-#             code='invalid',
-#             params={'content': content},
-#         )
-
 
 class Message(models.Model):
     author = models.ForeignKey(User,related_name='author_messages',on_delete=models.CASCADE)
     content = models.TextField()
-    timestamp=models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    reciever = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
     def __str__(self):
         return self.author.username

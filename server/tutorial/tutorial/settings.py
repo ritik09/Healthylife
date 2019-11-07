@@ -142,6 +142,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+] 
 CORS_ALLOW_CREDENTIALS = True
 JWT_AUTH = {
     
@@ -205,23 +212,20 @@ EMAIL_HOST_PASSWORD = "ritik0912"
 EMAIL_PORT = 587
 
 
-PHONE_VERIFICATION = {
-    'BACKEND': 'phone_verify.backends.twilio.TwilioBackend',
-    'OPTIONS': {
-        'SID': 'fake',
-        'SECRET': 'fake',
-        'FROM': '+14755292729',
-        'SANDBOX_TOKEN':'123456',
-    },
-    'TOKEN_LENGTH': 6,
-    'MESSAGE': 'Welcome to {app}! Please use security code {security_code} to proceed.',
-    'APP_NAME': 'Phone Verify',
-    'SECURITY_CODE_EXPIRATION_TIME': 3600,  
-    'VERIFY_SECURITY_CODE_ONLY_ONCE': False,  
-}
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-] 
+# PHONE_VERIFICATION = {
+#     'BACKEND': 'phone_verify.backends.twilio.TwilioBackend',
+#     'OPTIONS': {
+#         'SID': 'fake',
+#         'SECRET': 'fake',
+#         'FROM': '+14755292729',
+#         'SANDBOX_TOKEN':'123456',
+#     },
+#     'TOKEN_LENGTH': 6,
+#     'MESSAGE': 'Welcome to {app}! Please use security code {security_code} to proceed.',
+#     'APP_NAME': 'Phone Verify',
+#     'SECURITY_CODE_EXPIRATION_TIME': 3600,  
+#     'VERIFY_SECURITY_CODE_ONLY_ONCE': False,  
+# }
 
 ASGI_APPLICATION = "tutorial.routing.application"
 

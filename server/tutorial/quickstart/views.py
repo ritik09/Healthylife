@@ -6,24 +6,26 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import views
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from django.template.loader import render_to_string
 from rest_framework import generics,viewsets,mixins
-from .models import User,PhoneOtp,Hospital_Name
+from .models import User,PhoneOtp,Hospital_Name,Doctor
 from rest_framework_jwt.settings import api_settings
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer, DoctorSerializer,HospitalSerializer
+from quickstart.serializers import UserSerializer, DoctorSerializer,HospitalSerializer,MessageSerializer,DoctorSerializer,LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from django.utils import timezone
 from datetime import timedelta
+from .models import Message
 from rest_framework.response import Response
 from rest_framework import status,permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 from .serializers import UserSerializer,PhoneOtpSerializer,HospitalSerializer,EnquirySerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
@@ -35,7 +37,6 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 import random
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset=User.objects.all().order_by('-date_joined')
@@ -71,7 +72,7 @@ class SignUp(APIView):
         user.is_active = False
         user.save()
         subject = 'Activate Your Account'
-        message = render_to_string('accountactivate.html', {
+        message = render_to_string('quickstart/accountactivate.html', {
             'user': user,
             'OTP': otp,
          })
@@ -86,7 +87,7 @@ class validateotp(APIView):
     def post(self,request,user_id,*args,**kwargs):
         otp_verify =  PhoneOtpSerializer(data = request.data)
         otp_verify.is_valid(raise_exception=True)
-        otp_verify = otp_verify.validated_data['otp']
+        otp_verify = otp_verify.validated_data['otp'] 
         try:
             otp = PhoneOtp.objects.get(receiver=user_id)
         except(TypeError, ValueError, OverflowError, PhoneOtp.DoesNotExist):
@@ -98,7 +99,7 @@ class validateotp(APIView):
         if otp is None or receiver is None:
             return Response({'error':'you are not a valid user'},status=status.HTTP_400_BAD_REQUEST)
 
-        elif timezone.now() - otp.sent_on >= timedelta(days=0,hours=0,minutes=5,seconds=0):
+        elif timezone.now() - otp.sent_on >= timedelta(days=0,hours=0,minutes=2,seconds=0):
             otp.delete()
             return Response({'detail':'OTP expired!',
                                  'user_id':user_id})
@@ -108,10 +109,10 @@ class validateotp(APIView):
             otp.delete()
             return Response({'message': 'Thank you for otp Verification you are successfully logged in'},
                             status=status.HTTP_200_OK)
-        else:
+        else: 
             return Response({'error':'Invalid OTP',})
 
-class resendotp(APIView):
+class resendotp(generics.CreateAPIView):
     serializer_class = PhoneOtpSerializer
     def get(self,request,user_id,*args,**kwargs):
         try:
@@ -143,8 +144,8 @@ class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
 
     def get(self,request,format=None):
-        users = Hospital_Name.objects.all()
-        serializer = HospitalSerializer(users, many=True)
+        hospital = Hospital_Name.objects.all()
+        serializer = HospitalSerializer(hospital, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -154,20 +155,46 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
-def jwt_get_username_from_payload_handler(payload):
-    return payload.get('username')
 
+class DoctorView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    def get(self,request,*args, **kwargs):
+        doctor = Doctor.objects.all()
+        serializer = DoctorSerializer(doctor, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args,**kwargs):
+        serializer = DoctorSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MessageView(APIView):
+    def get(self,request,*args,**kwargs):
+        message = Message.objects.all()
+        serializer = MessageSerializer(message,many=True)
+        return Response(serializer.data)
+    def post(self, request, *args,**kwargs):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Enquiry(APIView):
     serializer_class = EnquirySerializer
-    def get(self,request,format=None):
-        enquiry=Enquiry.objects.all()
-    def post(self, request, format=None):
+    def get(self,request,*args,**kwargs):
+        enquiry =Enquiry.objects.all()
+        serializer = EnquirySerializer(enquiry)
+        return Response(serializer.data)
+    def post(self, request, *args,**kwargs):
         serializer = EnquirySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # class DoctorEnquiry(APIView):
 #     def get(self,request,format=None):
@@ -183,3 +210,6 @@ def room(request, room_name):
         'room_name_json': mark_safe(json.dumps(room_name)),
         'username': mark_safe(json.dumps(request.user.username)),
     })
+
+
+

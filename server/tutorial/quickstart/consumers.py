@@ -4,8 +4,6 @@ from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import Message,User
 
-
-
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
@@ -23,8 +21,8 @@ class ChatConsumer(WebsocketConsumer):
             author=author_user, 
             content=data['message'])
         content = {
+            'message': self.message_to_json(message),
             'command': 'new_message',
-            'message': self.message_to_json(message)
         }
         return self.send_chat_message(content)
 
@@ -42,8 +40,9 @@ class ChatConsumer(WebsocketConsumer):
         }
 
     commands = {
+        'new_message': new_message,
         'fetch_messages': fetch_messages,
-        'new_message': new_message
+        
     }
 
     def connect(self):
@@ -65,7 +64,6 @@ class ChatConsumer(WebsocketConsumer):
         data = json.loads(text_data)
         self.commands[data['command']](self, data)
         
-
     def send_chat_message(self, message):    
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
@@ -81,3 +79,4 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         self.send(text_data=json.dumps(message))
+

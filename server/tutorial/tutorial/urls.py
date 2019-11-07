@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from rest_framework.routers import DefaultRouter
-
 from django.contrib import admin
 from django.urls import include,path
 from rest_framework import routers
@@ -24,7 +23,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-
+from quickstart.views import SignUp,validateotp,resendotp,Enquiry,MessageView,DoctorView
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken
@@ -33,6 +32,7 @@ from django_otp.forms import OTPAuthenticationForm
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'hospitals', views.HospitalViewSet)
+
 default_router = DefaultRouter(trailing_slash=False)
 
 
@@ -47,8 +47,10 @@ urlpatterns = [
     # url(r'^api/activate/(?P<user_id>[0-9]+)/$', views.Activate.as_view(), name='activate'),
     # url(r'^usertoken/', usertoken.as_view()),
     path('login/', obtain_jwt_token),
+    url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('',include(default_router.urls)),
+    # url(r'^log/$',views.Login.as_view()),
     # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
