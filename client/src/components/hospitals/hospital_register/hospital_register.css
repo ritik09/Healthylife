@@ -4,7 +4,7 @@
     height:100%;
   }
   .wrapper {
-      height: 150vh;
+      height: 125vh;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -82,10 +82,8 @@
     .email,
     .userName,
     .password,
-    .speciality,
-    .qualification,
-    .yearOfExperience,
-    .phoneNumber {
+    .location,
+    .image {
       display: flex;
       flex-direction: column;
       margin-bottom: 15px;
@@ -96,10 +94,8 @@
     .lastName,
     .email,
     .password,
-    .speciality,
-    .qualification,
-    .yearOfExperience,
-    .phoneNumber {
+    .location,
+    .image {
       width: 100%;
     }
     

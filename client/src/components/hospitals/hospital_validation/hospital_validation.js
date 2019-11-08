@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-class VALIDATE extends Component {
+class VALIDATE_HOSPITAL extends Component {
   constructor(props) {
     super(props);
 
@@ -70,7 +70,7 @@ class VALIDATE extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
-        window.location.href = "/login";
+        window.location.href = "/login_hospital";
 
       })
       .catch((error) => {
@@ -130,4 +130,4 @@ class VALIDATE extends Component {
   }
 }
 
-export default VALIDATE;
+export default VALIDATE_HOSPITAL;

@@ -1,13 +1,16 @@
 import React, { Component } from "react";
+import "./hospital_login.css";
 
-class VALIDATE extends Component {
+class LOG_HOSPITAL extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-        otp: null,
+        userName: null,
+      password: null,
       formErrors: {
-          otp: ""
+          userName: "",
+        password: ""
       }
     };
   }
@@ -25,19 +28,28 @@ class VALIDATE extends Component {
       val === null && (valid = false);
     });
   
-    let otpError = "";
-      if (!this.state.otp) {
-        otpError = "this field cannot be blank";
+    let userNameError = "";
+    let passwordError = "";
+    if (!this.state.userName) {
+        userNameError = "this field cannot be blank";
       }
       else {
-          otpError = "";
+          userNameError = "";
+      }
+      if (!this.state.password) {
+        passwordError = "this field cannot be blank";
+      }
+      else {
+          passwordError = "";
       }
 
-      if(otpError){
+      if(userNameError || passwordError){
         this.setState(prevState => ({
           formErrors: {
             ...prevState.formErrors,
-            otp: otpError          }
+            userName: userNameError,
+            password: passwordError
+          }
         }));
         valid = false;
       }
@@ -50,8 +62,8 @@ class VALIDATE extends Component {
 
     if (this.formValid(this.state)) {
       const postform = {
-         otp: this.state.otp,
-         user_id: localStorage.getItem('user_id')
+         username: this.state.userName,
+         password: this.state.password,
       }
       this.postedform(postform)
     } else {
@@ -60,7 +72,7 @@ class VALIDATE extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch(`https://f6a8cd9f.ngrok.io/validateotp/${localStorage.getItem('user_id')}/` , {
+      fetch('https://f6a8cd9f.ngrok.io/login/' , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {
@@ -70,8 +82,9 @@ class VALIDATE extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
-        window.location.href = "/login";
-
+        console.log(responseJson.token);
+        localStorage.setItem('token',responseJson.token);
+        // localStorage.get('token')
       })
       .catch((error) => {
             //Error 
@@ -91,6 +104,10 @@ class VALIDATE extends Component {
                 formErrors.userName =
                 value.length < 3 ? "" : "";
                 break;
+      case "password":
+        formErrors.password =
+          value.length < 6 ? "" : "";
+        break;
       default:
         break;
     }
@@ -104,24 +121,39 @@ class VALIDATE extends Component {
     return (
       <div className="loginwrapper">
         <div className="form-wrapper">
-          <h1>Enter the otp</h1>
+          <h1>LOGIN</h1>
           <form onSubmit={this.handleSubmit} noValidate>
           <div className="userName">
-              <label htmlFor="userName">OTP</label>
+              <label htmlFor="userName">User Name</label>
               <input
-                className={formErrors.otp.length > 0 ? "error" : null}
-                placeholder="OTP"
-                type="number"
-                name="otp"
+                className={formErrors.userName.length > 0 ? "error" : null}
+                placeholder="User Name"
+                type="text"
+                name="userName"
                 noValidate
                 onChange={this.handleChange}
               />
-              {formErrors.otp.length > 0 && (
-                <span className="errorMessage">{formErrors.otp}</span>
+              {formErrors.userName.length > 0 && (
+                <span className="errorMessage">{formErrors.userName}</span>
+              )}
+            </div>
+            <div className="password">
+              <label htmlFor="password">Password</label>
+              <input
+                className={formErrors.password.length > 0 ? "error" : null}
+                placeholder="Password"
+                type="password"
+                name="password"
+                noValidate
+                onChange={this.handleChange}
+              />
+              {formErrors.password.length > 0 && (
+                <span className="errorMessage">{formErrors.password}</span>
               )}
             </div>
             <div className="login">
-              <button type="submit">SUBMIT</button>
+              <button type="submit">Login</button>
+              <small>Does not Have an Account?</small>
             </div>
           </form>
         </div>
@@ -130,4 +162,4 @@ class VALIDATE extends Component {
   }
 }
 
-export default VALIDATE;
+export default LOG_HOSPITAL;
