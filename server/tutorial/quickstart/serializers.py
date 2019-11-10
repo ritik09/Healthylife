@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
-from .models import PhoneOtp,Rating,Enquiry,Message,Doctor
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth import get_user_model
@@ -119,6 +119,10 @@ class DoctorSerializer(serializers.ModelSerializer):
         else:
             return contact
         
+class AppointmentSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = Appointment
+        fields=('username','email','contact','gender','doctor_name','hospital_name')
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(allow_null=False,required=True)

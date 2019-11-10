@@ -62,8 +62,7 @@ class Enquiry(models.Model):
     age = models.IntegerField()
     category1 =[
         ('M','Male'),
-        ('F','Female'),
-        ('O','Others')
+        ('F','Female')
     ]
     gender = models.CharField(max_length=50,choices=category1)
     category2=[
@@ -90,3 +89,16 @@ class Message(models.Model):
 
     def last_30_messages(self):
         return Message.objects.order_by('-timestamp').all()[:30]
+
+
+class Appointment(models.Model):
+    username = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100)
+    contact = models.CharField(max_length=15)
+    category1 =[
+        ('M','Male'),
+        ('F','Female')
+    ]
+    gender = models.CharField(max_length=50,choices=category1)
+    doctor_name = models.CharField(max_length=100)
+    hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
