@@ -84,6 +84,7 @@ class LOG_HOSPITAL extends Component {
         console.log(responseJson);
         console.log(responseJson.token);
         localStorage.setItem('token',responseJson.token);
+        window.location.href = "/hospital_profile";
         // localStorage.get('token')
       })
       .catch((error) => {
