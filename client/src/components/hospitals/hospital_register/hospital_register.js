@@ -124,34 +124,38 @@ class HOSPITAL_SIGN extends Component {
         Password: ${this.state.password}
         Image: ${this.state.image}
       `);
-      // const postform = {
-      //    username: this.state.userName,
-      //    email: this.state.email,
-      //    password: this.state.password,
-      //    confirm_password: this.state.confirmPassword,
-      //    hospital_name: this.state.hospitalName,
-      //    street_name: this.state.location,
-      //    image: this.state.image + this.state.image.name
-      // }
-      let form_data = new FormData();
-      form_data.append('username',this.state.userName);
-      form_data.append('email',this.state.email);
-      form_data.append('password',this.state.password);
-      form_data.append('confirm_password',this.state.confirmPassword);
-      form_data.append('hospital_name',this.state.hospitalName);
-      form_data.append('street_name',this.state.location);
-      form_data.append('image',this.state.image); 
-      this.postedform(form_data)
+      const postform = {
+         username: this.state.userName,
+         email: this.state.email,
+         password: this.state.password,
+         confirm_password: this.state.confirmPassword,
+         hospital_name: this.state.hospitalName,
+         street_name: this.state.location,
+         image: this.state.image + this.state.image.name
+      }
+      // let form_data = new FormData();
+      // form_data.append('username',this.state.userName);
+      // form_data.append('email',this.state.email);
+      // form_data.append('password',this.state.password);
+      // form_data.append('confirm_password',this.state.confirmPassword);
+      // form_data.append('hospital_name',this.state.hospitalName);
+      // form_data.append('street_name',this.state.location);
+      // form_data.append('image',this.state.image); 
+      console.log(postform);
+      this.postedform(postform);
     } else {
       console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
-  postedform = (form_data) => {
-    fetch('https://1f7f75fd.ngrok.io/quickstart/signup_as_hospital/' , {
+  postedform = (postform) => {
+    fetch('https://26e923d2.ngrok.io/quickstart/signup_as_hospital/' , {
         method: 'POST',
-        body: JSON.stringify(form_data),
+        body: JSON.stringify(postform),
         headers: {
-          'Content-Type': 'application/json'
+          // Accept: 'application/json, text/plain, */*',
+          //  'Content-Type': 'application/json'
+
+          'content-type': 'multipart/form-data'
       }
     }).then((response) => response.json())
     .then((responseJson) => {
