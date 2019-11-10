@@ -3,22 +3,28 @@ from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
-from .models import PhoneOtp,Hospital_Name,Rating,Enquiry,Message
+from rest_framework.validators import UniqueValidator
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
-
+class UserSerializer1(serializers.ModelSerializer):
     username=serializers.CharField(
         required=True,
-        style={'placeholder':'Username'}
+        allow_blank=False,
+        style={'placeholder':'Username'},
+        validators=[UniqueValidator(queryset=User.objects.all(),
+        message='Username already in use',
+        lookup='exact')]
+
     )
+
     first_name=serializers.CharField(
         required=True,
-        style={'placeholder':'First Name'}
+        style={'placeholder':'first Name'}
     )
     last_name=serializers.CharField(
         required=True,
@@ -26,7 +32,12 @@ class UserSerializer(serializers.ModelSerializer):
     )
     email=serializers.EmailField(
         required=True,
-        style={'placeholder':'Email'}
+        allow_null=False,
+        style={'placeholder':'Email'},
+        validators=[UniqueValidator(queryset=User.objects.all(),
+        message ='Email already in use',
+        lookup='exact')]
+        
     )
     password = serializers.CharField(style={'input_type': 'password'},required=True,
                                      allow_blank=False,allow_null=False)
@@ -37,6 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
     #     # help_text='Leave empty if no change needed',
     #     style={'input_type': 'password', 'placeholder': 'Password'}
     # )
+
     class Meta:
         model=User
         fields=['url','username','first_name','last_name','email','password','confirm_password']
@@ -50,13 +62,63 @@ class UserSerializer(serializers.ModelSerializer):
             raise ValidationError("password of minimum 6 digit is required")
         else:
             return data
-    
-        email = data.get('email')
-        try:
-            match  = User.objects.get(email=email)
-        except User.DoesNotExist:
+
+class UserSerializer2(serializers.ModelSerializer):
+    username=serializers.CharField(
+        required=True,
+        allow_blank=False,
+        style={'placeholder':'Username'},
+        validators=[UniqueValidator(queryset=User.objects.all(),
+        message='Username already in use',
+        lookup='exact')]
+
+    )
+    hospital_name=serializers.CharField(
+        required=True,
+        style={'placeholder':'Hospital_name'}
+    )
+    email=serializers.EmailField(
+        required=True,
+        allow_null=False,
+        style={'placeholder':'Email'},
+        validators=[UniqueValidator(queryset=User.objects.all(),
+        message ='Email already in use',
+        lookup='exact')]
+        
+    )
+    password = serializers.CharField(style={'input_type': 'password'},required=True,
+                                     allow_blank=False,allow_null=False)
+    confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
+    image =serializers.ImageField(max_length=None)
+    street_name = serializers.CharField(max_length=100)
+
+    class Meta:
+        model=User
+        fields=['url','username','hospital_name','email','password','confirm_password','image','street_name']
+
+    def validate(self, data):
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        if password != confirm_password:
+            raise ValidationError("Password didn't matched ")
+        if len(password) < 6:
+            raise ValidationError("password of minimum 6 digit is required")
+        else:
             return data
-        raise serializers.ValidationError('Email already exists')
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','image','hospital')
+
+    def validate_contact(self,contact):
+        if len(contact)>10:
+            raise serializers.ValidationError("Please enter a valid phone number")
+        elif len(contact)<10:
+            raise serializers.ValidationError("Please enter a valid phone number")
+        else:
+            return contact
+        
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(allow_null=False,required=True)
@@ -67,21 +129,11 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username','password')
 
-class DoctorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields=['url','full_name','Hospital','Degree','Years_of_Experience','Specialization','Contact','password','confirm_password','image']
-
 
 class PhoneOtpSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhoneOtp
         fields =['otp']
-
-class HospitalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hospital_Name
-        fields = ['hospital_name','image','street_name']
 
 class RatingSerializer(serializers.ModelSerializer):
     

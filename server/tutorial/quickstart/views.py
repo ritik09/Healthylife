@@ -6,17 +6,18 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
+from django.db.models import Q
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import views
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from django.template.loader import render_to_string
 from rest_framework import generics,viewsets,mixins
-from .models import User,PhoneOtp,Hospital_Name,Doctor
+from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer, DoctorSerializer,HospitalSerializer,MessageSerializer,DoctorSerializer,LoginSerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -26,7 +27,7 @@ from .models import Message
 from rest_framework.response import Response
 from rest_framework import status,permissions
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer,PhoneOtpSerializer,HospitalSerializer,EnquirySerializer
+from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from random import *
@@ -39,16 +40,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset=User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+    queryset=User.objects.filter(street_name__isnull=True)
+    serializer_class = UserSerializer2
 
     def get(self,request,format=None):
         users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = UserSerializer2(users, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer2(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -56,8 +57,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class SignUp(APIView):
+    serializer_class =UserSerializer1
     def post(self, request, *args, **kwargs):
-        serializer = UserSerializer(data = request.data)
+        serializer = UserSerializer1(data = request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
@@ -139,37 +141,73 @@ class resendotp(generics.CreateAPIView):
                          'user_id': user_id },
                         status=status.HTTP_201_CREATED)
 
+class Sign_Up_Hospital(APIView):
+    serializer_class = UserSerializer2
+    def post(self, request, *args, **kwargs):
+        serializer = UserSerializer2(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        hospital_name = serializer.validated_data['hospital_name']
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        confirm_password = serializer.validated_data['confirm_password']
+        image = serializer.validated_data['image']
+        street_name=serializer.validated_data['street_name']
+        user = User.objects.create_user(username=username,hospital_name=hospital_name,email=email,password=password,confirm_password=confirm_password,image=image,street_name=street_name)
+        otp = randint(999,9999)
+        data = PhoneOtp.objects.create(otp=otp,receiver=user)
+        data.save()
+        user.is_active = False
+        user.save()
+        subject = 'Activate Your Account'
+        message = render_to_string('quickstart/accountactivate.html', {
+            'user': user,
+            'OTP': otp,
+         })
+        from_mail = EMAIL_HOST_USER
+        to_mail = [user.email]
+        send_mail(subject, message, from_mail, to_mail, fail_silently=False)
+        return Response({'details': 'Please confirm your otp to complete registration.',
+                               'user_id': user.id})
+
 class HospitalViewSet(viewsets.ModelViewSet):
-    queryset = Hospital_Name.objects.all()
-    serializer_class = HospitalSerializer
-
-    def get(self,request,format=None):
-        hospital = Hospital_Name.objects.all()
-        serializer = HospitalSerializer(hospital, many=True)
+    parser_classes = (MultiPartParser, FormParser)
+    queryset = User.objects.filter(street_name__isnull=False)
+    serializer_class = UserSerializer2
+    def get(self,request,*args,**kwargs):
+        users = User.objects.all()
+        serializer = UserSerializer2(users, many=True)
         return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = HospitalSerializer(data=request.data)
+    def post(self, request, *args,**kwargs):
+        serializer = UserSerializer2(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DoctorView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-    def get(self,request,*args, **kwargs):
-        doctor = Doctor.objects.all()
-        serializer = DoctorSerializer(doctor, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, *args,**kwargs):
+    serializer_class = DoctorSerializer
+    def post(self,request,user_id,*args,**kwargs): 
         serializer = DoctorSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class HospitalProfile(APIView):
+    def get(self,request,user_id,*args,**kwargs):
+        user = User.objects.get(id=user_id)
+        doctor = Doctor.objects.filter(hospital__username = user)
+        serializer = DoctorSerializer(doctor, many=True)
+        return Response(serializer.data)
+    def post(self,request,user_id,*args,**kwargs):
+        add = Doctor.objects.filter(hospital__username=self.request.user)
+        serializer = DoctorSerializer(data=add,many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 class MessageView(APIView):
     def get(self,request,*args,**kwargs):
         message = Message.objects.all()
@@ -185,7 +223,7 @@ class MessageView(APIView):
 class Enquiry(APIView):
     serializer_class = EnquirySerializer
     def get(self,request,*args,**kwargs):
-        enquiry =Enquiry.objects.all()
+        enquiry = Enquiry.objects.all()
         serializer = EnquirySerializer(enquiry)
         return Response(serializer.data)
     def post(self, request, *args,**kwargs):
@@ -194,7 +232,6 @@ class Enquiry(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # class DoctorEnquiry(APIView):
 #     def get(self,request,format=None):
@@ -210,6 +247,5 @@ def room(request, room_name):
         'room_name_json': mark_safe(json.dumps(room_name)),
         'username': mark_safe(json.dumps(request.user.username)),
     })
-
 
 
