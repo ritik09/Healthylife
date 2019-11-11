@@ -58,26 +58,19 @@ class Rating(models.Model):
         return "%s rated %s"%(self.user.username,self.product.name)
 
 class Enquiry(models.Model):
-    Full_Name = models.CharField(max_length=100)
+    username = models.CharField(max_length=100)
     age = models.IntegerField()
     category1 =[
         ('M','Male'),
         ('F','Female')
     ]
     gender = models.CharField(max_length=50,choices=category1)
-    category2=[
-        ('Cardio','Cardiologists'),
-        ('Derma','Dermatalogist'),
-        ('Immuno','Immunologists'),
-        ('Endocrin','Endocrinologists'),
-        ('Neuro','Neurologist'),
-        ('Path','Pathologist'),
-        ('Psych','Psychiatrists')
-    ]
-    Specialist = models.CharField(max_length=100,choices=category2)
     Problem = models.TextField(max_length=300)
+    hospital_name = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
-
+class ReplyEnquiry(models.Model):
+    reply = models.CharField(max_length=500)
+    username = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 class Message(models.Model):
     author = models.ForeignKey(User,related_name='author_messages',on_delete=models.CASCADE)
     content = models.TextField()
@@ -102,3 +95,8 @@ class Appointment(models.Model):
     gender = models.CharField(max_length=50,choices=category1)
     doctor_name = models.CharField(max_length=100)
     hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
+
+class AppointmentType(models.Model):
+    Accepted = models.BooleanField(default=False)
+    Rejected = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)

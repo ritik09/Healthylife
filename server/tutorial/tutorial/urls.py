@@ -23,7 +23,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-from quickstart.views import SignUp,validateotp,resendotp,Enquiry,MessageView,HospitalViewSet,DoctorView,HospitalProfile
+from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken

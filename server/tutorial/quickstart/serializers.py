@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
-from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth import get_user_model
@@ -120,9 +120,12 @@ class DoctorSerializer(serializers.ModelSerializer):
             return contact
         
 class AppointmentSerializer(serializers.ModelSerializer):
-     class Meta:
+    class Meta:
         model = Appointment
         fields=('username','email','contact','gender','doctor_name','hospital_name')
+    def validate(self,data):
+        if data['Accepted'] or data['Rejected']:
+            return data
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(allow_null=False,required=True)
@@ -133,6 +136,16 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username','password')
 
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields =('user','star')
+
+
+class AcceptRejectAppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointmentType
+        fields =('Accepted','Rejected','timestamp')
 
 class PhoneOtpSerializer(serializers.ModelSerializer):
     class Meta:
@@ -148,7 +161,12 @@ class RatingSerializer(serializers.ModelSerializer):
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enquiry
-        fields = ['Full_Name','age','gender','Specialist','Problem']
+        fields = ['username','age','gender','Problem','hospital_name']
+
+class ReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model =ReplyEnquiry
+        fields = ['reply','username']
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

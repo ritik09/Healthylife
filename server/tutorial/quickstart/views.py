@@ -17,7 +17,7 @@ from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -26,12 +26,13 @@ from datetime import timedelta
 from .models import Message
 from rest_framework.response import Response
 from rest_framework import status,permissions
+from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer
+from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from random import *
-from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message
+from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry
 from django.contrib.auth import authenticate, login
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -221,18 +222,35 @@ class MessageView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class Enquiry(APIView):
+class Make_Enquiry(APIView):
     serializer_class = EnquirySerializer
-    def get(self,request,*args,**kwargs):
-        enquiry = Enquiry.objects.all()
-        serializer = EnquirySerializer(enquiry)
-        return Response(serializer.data)
     def post(self, request, *args,**kwargs):
         serializer = EnquirySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class EnquiryView(APIView):
+    serializer_class = ReplySerializer
+    def post(self, request, *args,**kwargs):
+        serializer = ReplySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request,user_id, *args,**kwargs):
+        user = User.objects.get(id=user_id)
+        enquiry = Enquiry.objects.filter(hospital_name__username = user)
+        serializer = EnquirySerializer(enquiry, many=True)
+        return Response(serializer.data)
+
+class Patient_EnquiryView(APIView):
+     def get(self, request,user_id, *args,**kwargs):
+        user = User.objects.get(id=user_id)
+        enquiry =  ReplyEnquiry.objects.filter(username = user)
+        serializer = ReplySerializer(enquiry, many=True)
+        return Response(serializer.data)
 
 class Make_Appointment(APIView):
     serializer_class = AppointmentSerializer
@@ -258,6 +276,15 @@ class AppointmentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class AppointmentProfileView(APIView):
+    serializer_class = AcceptRejectAppointmentSerializer
+    def get(self,request,*args,**kwargs):
+        status = self.kwargs['status']
+        if status == 'accept':
+            return Response({'Your appointment has been approved'})
+        elif status == 'reject':
+            return Response({'Your appointment has been cancelled'})
+ 
 def index(request):
     return render(request, 'quickstart/index.html', {})
 
@@ -268,4 +295,47 @@ def room(request, room_name):
         'username': mark_safe(json.dumps(request.user.username)),
     })
 
+class HospitalRating(APIView):
+    serializer_class = RatingSerializer
+    def get_serializer_class(self):
+        if self.action == 'submit_rating':
+            return RatingSerializer
+
+    @action(methods=['get'],detail=True)
+    def rating(self,*args,**kwargs):
+        hospital_id = self.kwargs['pk']
+        all_rating = Rating.objects.all()
+        total_rating = all_rating.count()
+        avg_rating = 0
+        rating_count = 0
+        for rate in all_rating:
+            rating_count += rate.star
+        avg_rating = rating_count/(total_rating+1)
+        if not self.request.user.is_anonymous:
+            try:
+                rated = Rating.objects.get(user=self.request.user,hospital=hospital_id)
+            except (Rating.DoesNotExist):
+                rated =None
+            if rated is None:
+                return Response({'status':False,'avg_rating':avg_rating})
+            return Response({'status':True,'avg_rating':avg_rating})
+        else:
+            return Response({'avg_rating':avg_rating})
+
+    @action(methods=['POST'],detail=True)
+    def submit_rating(self,request,*args,**kwargs):
+        hospital_id = self.kwargs['pk']
+        hospital = Product.objects.get(id=hospital_id)
+        try:
+            rated = Rating.objects.get(user=self.request.user,hospital=hospital)
+        except (Rating.DoesNotExist):
+            rated =None
+        if rated is None:
+            rating = RatingSerializer(data=request.data)
+            if rating.is_valid(raise_exception=True):
+                rating.save(user=request.user,hospital=hospital)
+                return Response("rated")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
