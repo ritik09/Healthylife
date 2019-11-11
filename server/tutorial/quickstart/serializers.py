@@ -152,12 +152,6 @@ class PhoneOtpSerializer(serializers.ModelSerializer):
         model = PhoneOtp
         fields =['otp']
 
-class RatingSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Rating
-        fields = ['user']
-        
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enquiry
@@ -172,3 +166,13 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['author','content','timestamp']
+
+class UserProfileChangeSerializer(serializers.ModelSerializer):
+     class Meta:
+        model=User
+        fields=['username','first_name','last_name','email','password','confirm_password']
+
+class HospitalProfileChangeSerializer(serializers.ModelSerializer):
+     class Meta:
+        model=User
+        fields=['username','hospital_name','email','password','confirm_password','image','street_name']

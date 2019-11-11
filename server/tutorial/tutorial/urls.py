@@ -42,7 +42,7 @@ default_router = DefaultRouter(trailing_slash=False)
 urlpatterns = [
     path('admin/', admin.site.urls),
     # url(r'^api-token-auth/', views.obtain_auth_token),
-    path('quickstart/', include('quickstart.urls')), 
+    path('quickstart/',include('quickstart.urls')), 
     
     path('', include(router.urls)),
     path('login/', obtain_jwt_token),

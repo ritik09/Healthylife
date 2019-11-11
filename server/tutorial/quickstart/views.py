@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import views
 from django.contrib.auth.decorators import login_required
@@ -17,11 +18,12 @@ from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from django.utils import timezone
+from rest_framework import generics, mixins, permissions
 from datetime import timedelta
 from .models import Message
 from rest_framework.response import Response
@@ -285,6 +287,49 @@ class AppointmentProfileView(APIView):
         elif status == 'reject':
             return Response({'Your appointment has been cancelled'})
  
+class UserProfileChangeAPIView(generics.RetrieveAPIView,
+                               mixins.DestroyModelMixin,
+                               mixins.UpdateModelMixin):
+    # permission_classes = (
+    #     permissions.IsAuthenticated,
+    #     UserIsOwnerOrReadOnly,
+    # )
+    serializer_class = UserProfileChangeSerializer
+    parser_classes = (MultiPartParser, FormParser,)
+
+    def get_object(self):
+        username = self.kwargs["username"]
+        obj = get_object_or_404(User, username=username)
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+class UserProfileChangeHospitalAPIView(generics.RetrieveAPIView,
+                               mixins.DestroyModelMixin,
+                               mixins.UpdateModelMixin):
+    # permission_classes = (
+    #     permissions.IsAuthenticated,
+    #     UserIsOwnerOrReadOnly,
+    # )
+    serializer_class = HospitalProfileChangeSerializer
+    parser_classes = (MultiPartParser, FormParser,)
+
+    def get_object(self):
+        username = self.kwargs["username"]
+        obj = get_object_or_404(User, username=username)
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
 def index(request):
     return render(request, 'quickstart/index.html', {})
 
