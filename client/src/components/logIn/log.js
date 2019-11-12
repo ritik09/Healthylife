@@ -84,6 +84,7 @@ class LOG extends Component {
         console.log(responseJson);
         console.log(responseJson.token);
         localStorage.setItem('token',responseJson.token);
+        window.location.href = "/";
         // localStorage.get('token')
       })
       .catch((error) => {

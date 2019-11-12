@@ -1,32 +1,45 @@
 import React, { Component } from "react";
-import "./hospital_register.css";
+import "./hospital_edit_profile.css";
 
-const emailRegex = RegExp(
-  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-);
 
-class HOSPITAL_SIGN extends Component {
+class HOSPITAL_EDIT_PROFILE extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
         userName: null,
       hospitalName: null,
-      email: null,
       location: null,
       password: null,
-      image: null,
       confirmPassword: null,
       formErrors: {
           userName: "",
         hospitalName: "",
-        email: "",
         location: "",
         password: "",
-        confirmPassword: "",
-        image: ""
+        confirmPassword: ""
       }
     };
+  }
+
+  componentDidMount() {
+    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+    .then(response => response.json())
+    .then((data) => {
+      this.setState({
+          userName: data.username,
+          hospitalName: data.hospital_name,
+          location:data.street_name,
+          password:data.password,
+          confirmPassword:data.confirm_password
+    })
+      console.log(this.state.hospitals)
+    })
+    .catch((error) => {
+      //Error 
+      alert(JSON.stringify(error));
+      console.error(error);
+  });
   }
 
   formValid = ({ formErrors, ...rest }) => {
@@ -44,10 +57,8 @@ class HOSPITAL_SIGN extends Component {
 
     let userNameError = "";
     let hospitalNameError = "";
-    let emailError = "";
     let locationError = "";
     let passwordError = "";
-    let imageError = "";
     let confirmPasswordError = "";
     if (!this.state.userName) {
       userNameError = "name cannot be blank";
@@ -60,12 +71,6 @@ class HOSPITAL_SIGN extends Component {
     }
     else {
         hospitalNameError = "";
-    }
-    if (!this.state.email) {
-        emailError = "email cannot be blank";
-    }
-    else {
-        emailError = "";
     }
     if (!this.state.location) {
       locationError = "location cannot be blank";
@@ -85,24 +90,16 @@ class HOSPITAL_SIGN extends Component {
     else {
         confirmPasswordError = "";
     }
-    if (!this.state.image) {
-      imageError = "choose image";
-    }
-    else {
-        imageError = "";
-    }
 
-    if(userNameError || hospitalNameError || emailError || locationError || passwordError || imageError|| confirmPasswordError){
+    if(userNameError || hospitalNameError || locationError || passwordError || confirmPasswordError){
       this.setState(prevState => ({
         formErrors: {
           ...prevState.formErrors,
           userName: userNameError,
           hospitalName: hospitalNameError,
           location: locationError,
-          email: emailError,
           password: passwordError,
-          confirmPassword: confirmPasswordError,
-          image: imageError
+          confirmPassword: confirmPasswordError
         }
       }));
       valid = false;
@@ -119,28 +116,16 @@ class HOSPITAL_SIGN extends Component {
         --SUBMITTING--
         User Name: ${this.state.userName}
         Hospital Name: ${this.state.hospitalName}
-        Email: ${this.state.email}
         Location: ${this.state.location}
         Password: ${this.state.password}
-        Image: ${this.state.image}
       `);
       const postform = {
          username: this.state.userName,
-         email: this.state.email,
          password: this.state.password,
          confirm_password: this.state.confirmPassword,
          hospital_name: this.state.hospitalName,
-         street_name: this.state.location,
-         image: this.state.image + this.state.image.name
+         street_name: this.state.location
       }
-      // let form_data = new FormData();
-      // form_data.append('username',this.state.userName);
-      // form_data.append('email',this.state.email);
-      // form_data.append('password',this.state.password);
-      // form_data.append('confirm_password',this.state.confirmPassword);
-      // form_data.append('hospital_name',this.state.hospitalName);
-      // form_data.append('street_name',this.state.location);
-      // form_data.append('image',this.state.image); 
       console.log(postform);
       this.postedform(postform);
     } else {
@@ -153,15 +138,15 @@ class HOSPITAL_SIGN extends Component {
         body: JSON.stringify(postform),
         headers: {
           // Accept: 'application/json, text/plain, */*',
-          //  'Content-Type': 'application/json'
+           'Content-Type': 'application/json'
 
-          'content-type': 'multipart/form-data'
+        //   'content-type': 'multipart/form-data'
       }
     }).then((response) => response.json())
     .then((responseJson) => {
       console.log(responseJson);
       localStorage.setItem('user_id',responseJson.user_id);
-      window.location.href = "/validate_hospital";
+      window.location.href = "/";
     })
     .catch((error) => {
       //Error 
@@ -184,11 +169,6 @@ class HOSPITAL_SIGN extends Component {
         formErrors.firstName =
           value.length < 3 ? "minimum 3 characaters required" : "";
         break;
-      case "email":
-        formErrors.email = emailRegex.test(value)
-          ? ""
-          : "invalid email address";
-        break;
       case "location":
         formErrors.location =
           value.length < 3 ? "minimum 3 characaters required" : "";
@@ -207,11 +187,7 @@ class HOSPITAL_SIGN extends Component {
 
     this.setState({ formErrors, [name]: value }, () => console.log(this.state));
   };
-  handleImageChange = (e) => {
-    this.setState({
-      image: e.target.files[0]
-    })
-  };
+
 
   render() {
     const { formErrors } = this.state;
@@ -226,7 +202,7 @@ class HOSPITAL_SIGN extends Component {
               <label htmlFor="userName">User Name</label>
               <input
                 className={formErrors.userName.length > 0 ? "error" : null}
-                placeholder="User Name"
+                value={this.state.userName}
                 type="text"
                 name="userName"
                 noValidate
@@ -240,7 +216,7 @@ class HOSPITAL_SIGN extends Component {
               <label htmlFor="hospitalName">Hospital Name</label>
               <input
                 className={formErrors.hospitalName.length > 0 ? "error" : null}
-                placeholder="Hospital Name"
+                value={this.state.hospitalName}
                 type="text"
                 name="hospitalName"
                 noValidate
@@ -254,7 +230,7 @@ class HOSPITAL_SIGN extends Component {
               <label htmlFor="location">Location</label>
               <input
                 className={formErrors.location.length > 0 ? "error" : null}
-                placeholder="Location"
+                value={this.state.location}
                 type="text"
                 name="location"
                 noValidate
@@ -264,39 +240,11 @@ class HOSPITAL_SIGN extends Component {
                 <span className="errorMessage">{formErrors.location}</span>
               )}
             </div>
-            <div className="email">
-              <label htmlFor="email">Email</label>
-              <input
-                className={formErrors.email.length > 0 ? "error" : null}
-                placeholder="Email"
-                type="email"
-                name="email"
-                noValidate
-                onChange={this.handleChange}
-              />
-              {formErrors.email.length > 0 && (
-                <span className="errorMessage">{formErrors.email}</span>
-              )}
-            </div>
-            <div className="image">
-              <label htmlFor="image">Image</label>
-              <input
-                className={formErrors.image.length > 0 ? "error" : null}
-                type="file"
-                name="image"
-                accept="image/png, image/jpeg"
-                noValidate
-                onChange={this.handleImageChange}
-              />
-              {formErrors.image.length > 0 && (
-                <span className="errorMessage">{formErrors.image}</span>
-              )}
-            </div>
             <div className="password">
               <label htmlFor="password">Password</label>
               <input
                 className={formErrors.password.length > 0 ? "error" : null}
-                placeholder="Password"
+                value={this.state.password}
                 type="password"
                 name="password"
                 noValidate
@@ -310,7 +258,7 @@ class HOSPITAL_SIGN extends Component {
               <label htmlFor="confirmPassword">Confirm Password</label>
               <input
                 className={formErrors.confirmPassword.length > 0 ? "error" : null}
-                placeholder="ConfirmPassword"
+                value={this.state.confirmPassword}
                 type="password"
                 name="confirmPassword"
                 noValidate
@@ -321,14 +269,7 @@ class HOSPITAL_SIGN extends Component {
               )}
             </div>
             <div className="createAccount">
-              <button type="submit">Create Account</button>
-              <small>Already Have an Account?
-              <Link to = "/login_hospital" style = {{ 
-                    // display:"block",
-                    // fontSize: "2rem",
-                  borderBottom: "6px solid blue"
-               }} className="font-weight-bold"><u>Login</u></Link>
-              </small>
+              <button type="submit">EDIT</button>
             </div>
           </form>
         </div>
@@ -338,4 +279,4 @@ class HOSPITAL_SIGN extends Component {
   }
 }
 
-export default HOSPITAL_SIGN;
+export default HOSPITAL_EDIT_PROFILE;

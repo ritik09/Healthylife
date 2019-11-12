@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
-class HOSPITAL extends Component {
+class DOCTOR extends Component {
   state = {
-    hospitals: [],
-    hospital_name:null,
+    doctors: [],
+    doctor_name:null,
     image_path:""
   }
   componentDidMount() {
@@ -20,12 +20,12 @@ class HOSPITAL extends Component {
   });
   }
 
-  setHospitalName(hospitalName){
+  setHospitalName(doctorName){
     this.setState({
-      hospital_name:hospitalName
+      doctor_name:doctorName
     })
-    localStorage.setItem('hospital_name',this.state.hospital_name);
-      window.location.href = "/hospital_profile_user";
+    localStorage.setItem('doctor_name',this.state.doctor_name);
+      window.location.href = "/doctor_profile_user";
   }
 
   render() {
@@ -33,19 +33,19 @@ class HOSPITAL extends Component {
     return (
        <div className="container">
         <div className="col-xs-12">
-        <h1>HOSPITALS</h1>
-        {this.state.hospitals.map((hospital) => (
+        <h1>DOCTORS</h1>
+        {this.state.hospitals.map((doctor) => (
           
           <div className="card">
             <div className="card-body">
             <h5 className="card-title">
-                <img src = {"https://f6a8cd9f.ngrok.io/" + hospital.image.split('/')[3] + "/" + hospital.image.split('/')[4] +  "/" + hospital.image.split('/')[5]}
+                <img src = {"https://f6a8cd9f.ngrok.io/" + doctor.image.split('/')[3] + "/" + doctor.image.split('/')[4] +  "/" + doctor.image.split('/')[5]}
          alt = ""/></h5>
-              <h5 className="card-title">{hospital.hospital_name}</h5>
-              <h5 className="card-title">{hospital.street_name}</h5>
+              <h5 className="card-title">{doctor.first_name}</h5>
+              <h5 className="card-title">{doctor.qualification}</h5>
               <h5 className="card-title">
               <form>
-              <button onClick = {this.setHospitalName(hospital.hospital_name)} type="submit">VIEW PROFILE</button>
+              <button onClick = {this.setDoctorName(doctor.first_name)} type="submit">VIEW PROFILE</button>
               </form>
               </h5>
             </div>
@@ -57,4 +57,4 @@ class HOSPITAL extends Component {
   }
   
 }
-export default HOSPITAL;
+export default DOCTOR;
