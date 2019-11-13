@@ -46,6 +46,7 @@ urlpatterns = [
     
     path('', include(router.urls)),
     path('login/', obtain_jwt_token),
+    path('login_as_hospital/', obtain_jwt_token),
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('',include(default_router.urls)),

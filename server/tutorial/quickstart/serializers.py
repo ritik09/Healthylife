@@ -10,7 +10,6 @@ from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-
 class UserSerializer1(serializers.ModelSerializer):
     username=serializers.CharField(
         required=True,
@@ -123,9 +122,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields=('username','email','contact','gender','doctor_name','hospital_name')
-    def validate(self,data):
-        if data['Accepted'] or data['Rejected']:
-            return data
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(allow_null=False,required=True)
@@ -159,7 +155,7 @@ class EnquirySerializer(serializers.ModelSerializer):
 
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
-        model =ReplyEnquiry
+        model = ReplyEnquiry
         fields = ['reply','username']
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -169,10 +165,10 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class UserProfileChangeSerializer(serializers.ModelSerializer):
      class Meta:
-        model=User
+        model = User
         fields=['username','first_name','last_name','email','password','confirm_password']
 
 class HospitalProfileChangeSerializer(serializers.ModelSerializer):
      class Meta:
-        model=User
+        model = User
         fields=['username','hospital_name','email','password','confirm_password','image','street_name']

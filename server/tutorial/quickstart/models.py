@@ -71,6 +71,7 @@ class Enquiry(models.Model):
 class ReplyEnquiry(models.Model):
     reply = models.CharField(max_length=500)
     username = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    
 class Message(models.Model):
     author = models.ForeignKey(User,related_name='author_messages',on_delete=models.CASCADE)
     content = models.TextField()
@@ -82,7 +83,6 @@ class Message(models.Model):
 
     def last_30_messages(self):
         return Message.objects.order_by('-timestamp').all()[:30]
-
 
 class Appointment(models.Model):
     username = models.CharField(max_length=100)
@@ -100,3 +100,10 @@ class AppointmentType(models.Model):
     Accepted = models.BooleanField(default=False)
     Rejected = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+
+
+
+
+    
