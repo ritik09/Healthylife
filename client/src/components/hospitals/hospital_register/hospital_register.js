@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./hospital_register.css";
+import { Link } from 'react-router-dom';
 
 const emailRegex = RegExp(
   /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
@@ -131,7 +132,7 @@ class HOSPITAL_SIGN extends Component {
          confirm_password: this.state.confirmPassword,
          hospital_name: this.state.hospitalName,
          street_name: this.state.location,
-         image: this.state.image + this.state.image.name
+      //  image: this.state.image + "/" +  this.state.image.name
       }
       // let form_data = new FormData();
       // form_data.append('username',this.state.userName);
@@ -140,22 +141,22 @@ class HOSPITAL_SIGN extends Component {
       // form_data.append('confirm_password',this.state.confirmPassword);
       // form_data.append('hospital_name',this.state.hospitalName);
       // form_data.append('street_name',this.state.location);
-      // form_data.append('image',this.state.image); 
-      console.log(postform);
+      // form_data.append('image',this.state.image + "/" +  this.state.image.name); 
+      // console.log(form_data);
       this.postedform(postform);
     } else {
       console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
   postedform = (postform) => {
-    fetch('https://26e923d2.ngrok.io/quickstart/signup_as_hospital/' , {
+    // console.log(form_data.get('email'));
+    fetch('https://b7cf50b9.ngrok.io/quickstart/signup_as_hospital/' , {
         method: 'POST',
         body: JSON.stringify(postform),
         headers: {
-          // Accept: 'application/json, text/plain, */*',
-          //  'Content-Type': 'application/json'
-
-          'content-type': 'multipart/form-data'
+          "Content-Type": "application/json",
+      // //  "Accept": "application/json",
+      // "type": "formData"
       }
     }).then((response) => response.json())
     .then((responseJson) => {

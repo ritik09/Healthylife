@@ -8,14 +8,16 @@ import VALIDATE from '../otp/validate';
 import HOSPITAL from '../hospitals/hospital';
 import VALIDATE_HOSPITAL from '../hospitals/hospital_validation/hospital_validation';
 import LOG_HOSPITAL from '../hospitals/hospital_login/hospital_login';
-import DOCTOR_SIGNUP from '../doctor_authentication/doctor_signup';
+import DOCTOR_SIGNUP from '../doctor_authentication/doctor_signup/doctor_signup';
 import HOSPITAL_PROFILE from '../hospitals/hospital_profile/hospital_profile';
 import HOSPITAL_EDIT_PROFILE from '../hospitals/hospital_edit_profile/hospital_edit_profile'; 
-import HOSPITAL_PROFILE_USER from '../hospitals/hospital_profile_user/hospital_profile_user';
-import DOCTOR_PROFILE_USER from '../doctor_authentication/doctor_profile_user/doctor_profile_user';
-import DOCTOR from '../doctor_authentication/doctors/doctor';
-import SHOW_USER_APPOINTMENT from '../appointments/show_appointment_user/show_appointment_user';
-import SHOW_HOSPITAL_APPOINTMENT from '../appointments/show_appointment_hospital/show_appointment_hospital';
+// import HOSPITAL_PROFILE_USER from '../hospitals/hospital_profile_user/hospital_profile_user';
+// import DOCTOR_PROFILE_USER from '../doctor_authentication/doctor_profile_user/doctor_profile_user';
+// import DOCTOR from '../doctor_authentication/doctors/doctor';
+// import SHOW_USER_APPOINTMENT from '../appointments/show_appointment_user/show_appointment_user';
+//import SHOW_HOSPITAL_APPOINTMENT from '../appointments/show_appointment_hospital/show_appointment_hospital';
+import HOSPITAL_SIGN from '../hospitals/hospital_register/hospital_register';
+import SHOW_DOCTORS_HOSPITAL from '../doctor_authentication/show_doctors_hospital/show_doctors_hospital';
 
 class Buildcontrols extends Component{
     render(){
@@ -31,12 +33,14 @@ class Buildcontrols extends Component{
                     <Route path="/login_hospital" component={LOG_HOSPITAL} />
                     <Route path="/doctor_signup" component={DOCTOR_SIGNUP} />
                     <Route path="/hospital_profile" component={HOSPITAL_PROFILE} />
-                    <Route path="/hospital_edit_profile" component={HOSPITAL_EDIT_PROFILE} />
-                    <Route path="/hospital_profile_user" component={HOSPITAL_PROFILE_USER} />
-                    <Route path="/doctor_profile_user" component={DOCTOR_PROFILE_USER} />
-                    <Route path="/doctor" component={DOCTOR} />
+                     <Route path="/hospital_edit_profile" component={HOSPITAL_EDIT_PROFILE} />
+                     {/* <Route path="/hospital_profile_user" component={HOSPITAL_PROFILE_USER} />
+                     <Route path="/doctor_profile_user" component={DOCTOR_PROFILE_USER} />
+                     <Route path="/doctor" component={DOCTOR} />
                     <Route path="/show_user_appointment" component={SHOW_USER_APPOINTMENT} />
-                    <Route path="/show_hospital_appointment" component={SHOW_hospital_APPOINTMENT} />
+                     <Route path="/show_hospital_appointment" component={SHOW_HOSPITAL_APPOINTMENT} />  */}
+                    <Route path="/hospital_sign" component={HOSPITAL_SIGN} />
+                    <Route path="/show_doctors_hospital" component={SHOW_DOCTORS_HOSPITAL} />
                     <Route path="/" component={HOME} />
                 </Switch>
 </div>

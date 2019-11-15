@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import "./hospital_edit_profile.css";
 
-
 class HOSPITAL_EDIT_PROFILE extends Component {
   constructor(props) {
     super(props);
@@ -23,14 +22,14 @@ class HOSPITAL_EDIT_PROFILE extends Component {
   }
 
   componentDidMount() {
-    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+    fetch(`https://b7cf50b9.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
     .then(response => response.json())
     .then((data) => {
       this.setState({
           userName: data.username,
           hospitalName: data.hospital_name,
           location:data.street_name,
-          password:data.password,
+          password:data.confirm_password,
           confirmPassword:data.confirm_password
     })
       console.log(this.state.hospitals)
@@ -133,7 +132,7 @@ class HOSPITAL_EDIT_PROFILE extends Component {
     }
   };
   postedform = (postform) => {
-    fetch('https://26e923d2.ngrok.io/quickstart/signup_as_hospital/' , {
+    fetch(`https://b7cf50b9.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/` , {
         method: 'POST',
         body: JSON.stringify(postform),
         headers: {
@@ -145,8 +144,8 @@ class HOSPITAL_EDIT_PROFILE extends Component {
     }).then((response) => response.json())
     .then((responseJson) => {
       console.log(responseJson);
-      localStorage.setItem('user_id',responseJson.user_id);
-      window.location.href = "/";
+      localStorage.setItem('user_name',responseJson.user_name);
+      // window.location.href = "/";
     })
     .catch((error) => {
       //Error 

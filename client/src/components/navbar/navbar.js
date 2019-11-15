@@ -65,6 +65,19 @@ const navBar = () => (
                                 borderBottom: '4px solid #c9b624',
                                 fontWeight:'bold',
                             }}>LOG IN</NavLink></li>
+                            <li><NavLink to={{
+                                pathname: '/hospital_sign',
+                                activeClassName:"link",
+                                hash: '#submit',
+                                search: '?quick-submit=true'
+                            }}
+                            activeStyle={{
+                                textDecoration: 'underline',
+                                color: 'white',
+                                backgroundColor:'#1f7d4f',
+                                borderBottom: '4px solid #c9b624',
+                                fontWeight:'bold',
+                            }}>Regiter Hospital</NavLink></li>
 
     </ul>
     </nav>

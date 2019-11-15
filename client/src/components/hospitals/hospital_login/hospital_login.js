@@ -72,7 +72,7 @@ class LOG_HOSPITAL extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch('https://f6a8cd9f.ngrok.io/login/' , {
+      fetch('https://b7cf50b9.ngrok.io/login_as_hospital/' , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {
@@ -84,6 +84,7 @@ class LOG_HOSPITAL extends Component {
         console.log(responseJson);
         console.log(responseJson.token);
         localStorage.setItem('token',responseJson.token);
+        localStorage.setItem('user_name',responseJson.username);
         window.location.href = "/hospital_profile";
         // localStorage.get('token')
       })

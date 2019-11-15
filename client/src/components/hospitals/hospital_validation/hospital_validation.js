@@ -60,7 +60,7 @@ class VALIDATE_HOSPITAL extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch(`https://f6a8cd9f.ngrok.io/validateotp/${localStorage.getItem('user_id')}/` , {
+      fetch(`https://b7cf50b9.ngrok.io/validateotp/${localStorage.getItem('user_id')}/` , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {

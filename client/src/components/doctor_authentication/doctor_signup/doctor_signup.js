@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import "./doctor_signup.css";
 
-const emailRegex = RegExp(
-  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-);
+// const emailRegex = RegExp(
+//   /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+// );
 
 class DOCTOR_SIGNUP extends Component {
   constructor(props) {
@@ -13,39 +13,39 @@ class DOCTOR_SIGNUP extends Component {
       hospitals: [],
       firstName: null,
       lastName: null,
-      email: null,
+      // email: null,
       speciality: null,
       qualification: null,
       yearOfExperience: null,
       phoneNumber: null,
-      password: null,
-      confirmPassword: null,
+      // password: null,
+      // confirmPassword: null,
       formErrors: {
         firstName: "",
         lastName: "",
-        email: "",
+        // email: "",
         speciality: "",
       qualification: "",
       yearOfExperience: "",
       phoneNumber: "",
-        password: "",
-        confirmPassword: ""
+        // password: "",
+        // confirmPassword: ""
       }
     };
   }
-  componentDidMount() {
-    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
-    .then(response => response.json())
-    .then((data) => {
-      this.setState({ hospitals: data })
-      console.log(this.state.hospitals)
-    })
-    .catch((error) => {
-      //Error 
-      alert(JSON.stringify(error));
-      console.error(error);
-  });
-  }
+  // componentDidMount() {
+  //   fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+  //   .then(response => response.json())
+  //   .then((data) => {
+  //     this.setState({ hospitals: data })
+  //     console.log(this.state.hospitals)
+  //   })
+  //   .catch((error) => {
+  //     //Error 
+  //     alert(JSON.stringify(error));
+  //     console.error(error);
+  // });
+  // }
 
   formValid = ({ formErrors, ...rest }) => {
     let valid = true;
@@ -62,13 +62,13 @@ class DOCTOR_SIGNUP extends Component {
 
     let firstNameError = "";
     let lastNameError = "";
-    let emailError = "";
+    // let emailError = "";
     let specialityError = "";
     let qualificationError = "";
     let yearOfExperienceError = "";
     let phoneNumberError = "";
-    let passwordError = "";
-    let confirmPasswordError = "";
+    // let passwordError = "";
+    // let confirmPasswordError = "";
     if (!this.state.firstName) {
       firstNameError = "name cannot be blank";
     }
@@ -81,12 +81,12 @@ class DOCTOR_SIGNUP extends Component {
     else {
         lastNameError = "";
     }
-    if (!this.state.email) {
-        emailError = "email cannot be blank";
-    }
-    else {
-        emailError = "";
-    }
+    // if (!this.state.email) {
+    //     emailError = "email cannot be blank";
+    // }
+    // else {
+    //     emailError = "";
+    // }
     if (!this.state.speciality) {
         specialityError = "this field cannot be blank";
     }
@@ -111,32 +111,32 @@ class DOCTOR_SIGNUP extends Component {
     else {
         phoneNumberError = "";
     }
-    if (!this.state.password) {
-      passwordError = "enter password";
-    }
-    else {
-        passwordError = "";
-    }
-    if (!this.state.confirmPassword) {
-      confirmPasswordError = "this field cannot be blank";
-    }
-    else {
-        confirmPasswordError = "";
-    }
+    // if (!this.state.password) {
+    //   passwordError = "enter password";
+    // }
+    // else {
+    //     passwordError = "";
+    // }
+    // if (!this.state.confirmPassword) {
+    //   confirmPasswordError = "this field cannot be blank";
+    // }
+    // else {
+    //     confirmPasswordError = "";
+    // }
 
-    if(firstNameError || lastNameError || emailError || specialityError || qualificationError || yearOfExperienceError || phoneNumberError|| passwordError || confirmPasswordError){
+    if(firstNameError || lastNameError || specialityError || qualificationError || yearOfExperienceError || phoneNumberError){
       this.setState(prevState => ({
         formErrors: {
           ...prevState.formErrors,
           firstName: firstNameError,
           lastName: lastNameError,
-          email: emailError,
+          // email: emailError,
           speciality: specialityError,
           qualification: qualificationError,
           yearOfExperience: yearOfExperienceError,
           phoneNumber: phoneNumberError, 
-          password: passwordError,
-          confirmPassword: confirmPasswordError
+          // password: passwordError,
+          // confirmPassword: confirmPasswordError
         }
       }));
       valid = false;
@@ -153,24 +153,25 @@ class DOCTOR_SIGNUP extends Component {
         --SUBMITTING--
         First Name: ${this.state.firstName}
         Last Name: ${this.state.lastName}
-        Email: ${this.state.email}
+        // Email: ${this.state.email}
         Speciality: ${this.state.speciality}
         Qualification: ${this.state.qualification}
         Year Of experience: ${this.state.yearOfExperience}
         Phone Number: ${this.state.phoneNumber}
-        Password: ${this.state.password}
-        Confirm Password: ${this.state.confirmPassword}
+        // Password: ${this.state.password}
+        // Confirm Password: ${this.state.confirmPassword}
       `);
       const postform = {
-         email: this.state.email,
-         password: this.state.password,
-         confirm_password: this.state.confirmPassword,
+        //  email: this.state.email,
+        //  password: this.state.password,
+        //  confirm_password: this.state.confirmPassword,
          first_name: this.state.firstName,
          last_name: this.state.lastName,
          Qualification: this.state.qualification,
-         Specialisation: this.state.speciality,
+         Specialization: this.state.speciality,
          Years_of_Experience: this.state.yearOfExperience,
-         Contact: this.state.phoneNumber
+         Contact: this.state.phoneNumber,
+         hospital: localStorage.getItem('user_id')
       }
       this.postedform(postform)
     } else {
@@ -178,17 +179,18 @@ class DOCTOR_SIGNUP extends Component {
     }
   };
   postedform = (postform) => {
-    fetch('https://f6a8cd9f.ngrok.io/quickstart/signup/' , {
+    fetch('https://b7cf50b9.ngrok.io/quickstart/hospital/' , {
         method: 'POST',
         body: JSON.stringify(postform),
         headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token') ,
           'Content-Type': 'application/json'
       }
     }).then((response) => response.json())
     .then((responseJson) => {
       console.log(responseJson);
-      localStorage.setItem('user_id',responseJson.user_id);
-      window.location.href = "/validate";
+      // localStorage.setItem('user_id',responseJson.user_id);
+      // window.location.href = "/hospital_profile";
     })
     .catch((error) => {
       //Error 
@@ -211,23 +213,23 @@ class DOCTOR_SIGNUP extends Component {
         formErrors.lastName =
           value.length < 3 ? "minimum 3 characaters required" : "";
         break;
-      case "email":
-        formErrors.email = emailRegex.test(value)
-          ? ""
-          : "invalid email address";
-        break;
+      // case "email":
+      //   formErrors.email = emailRegex.test(value)
+      //     ? ""
+      //     : "invalid email address";
+      //   break;
         case "phoneNumber":
             formErrors.phoneNumber =
               value.length < 10 ? "Phone Number should be of 10 digit" : "";
             break;
-      case "password":
-        formErrors.password =
-          value.length < 6 ? "minimum 6 characaters required" : "";
-        break;
-      case "confirmPassword": 
-        formErrors.confirmPassword = 
-        value !== this.state.password ? "password does not match" : "";
-        break;
+      // case "password":
+      //   formErrors.password =
+      //     value.length < 6 ? "minimum 6 characaters required" : "";
+      //   break;
+      // case "confirmPassword": 
+      //   formErrors.confirmPassword = 
+      //   value !== this.state.password ? "password does not match" : "";
+      //   break;
       default:
         break;
     }
@@ -272,7 +274,7 @@ class DOCTOR_SIGNUP extends Component {
                 <span className="errorMessage">{formErrors.lastName}</span>
               )}
             </div>
-            <div className="email">
+            {/* <div className="email">
               <label htmlFor="email">Email</label>
               <input
                 className={formErrors.email.length > 0 ? "error" : null}
@@ -285,7 +287,7 @@ class DOCTOR_SIGNUP extends Component {
               {formErrors.email.length > 0 && (
                 <span className="errorMessage">{formErrors.email}</span>
               )}
-            </div>
+            </div> */}
             <div className="phoneNumber">
               <label htmlFor="phoneNumber">Phone Number</label>
               <input
@@ -342,7 +344,7 @@ class DOCTOR_SIGNUP extends Component {
                 <span className="errorMessage">{formErrors.yearOfExperience}</span>
               )}
             </div>
-            <div className="password">
+            {/* <div className="password">
               <label htmlFor="password">Password</label>
               <input
                 className={formErrors.password.length > 0 ? "error" : null}
@@ -369,11 +371,10 @@ class DOCTOR_SIGNUP extends Component {
               {formErrors.confirmPassword.length > 0 && (
                 <span className="errorMessage">{formErrors.confirmPassword}</span>
               )}
-            </div>
+            </div> */}
             
             <div className="createAccount">
               <button type="submit">Create Account</button>
-              <small>Already Have an Account?</small>
             </div>
           </form>
         </div>

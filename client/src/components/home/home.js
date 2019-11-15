@@ -1,12 +1,12 @@
 import React,{Component} from 'react';
-
+import FlippingCardPage from './flip_card/flip_card';
 
 class HOME extends Component{
     render(){
         return(
             <div>
                <div>
-                   <img src = "/hospital.jpg" alt = "" className = "img-responsive" width = "100%" height = "650px"/>
+                   <FlippingCardPage />
                </div>
            </div>
         );
