@@ -6,9 +6,9 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
+from rest_framework.authtoken.views import ObtainAuthToken
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import permissions
 from rest_framework import views
 from django.contrib.auth.decorators import login_required
@@ -20,7 +20,7 @@ from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -153,7 +153,8 @@ class resendotp(generics.CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 class Sign_Up_Hospital(APIView):
-    permission_classes = (permissions.AllowAny,)
+    # permission_classes = (permissions.AllowAny,)
+    # parser_classes = (MultiPartParser, FormParser)
     serializer_class = UserSerializer2
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer2(data = request.data)
@@ -163,9 +164,9 @@ class Sign_Up_Hospital(APIView):
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         confirm_password = serializer.validated_data['confirm_password']
-        image = serializer.validated_data['image']
+        # image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        user = User.objects.create_user(username=username,hospital_name=hospital_name,email=email,password=password,confirm_password=confirm_password,image=image,street_name=street_name)
+        user = User.objects.create_user(username=username,hospital_name=hospital_name,email=email,password=password,confirm_password=confirm_password,street_name=street_name)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -181,6 +182,7 @@ class Sign_Up_Hospital(APIView):
         send_mail(subject, message, from_mail, to_mail, fail_silently=False)
         return Response({'details': 'Please confirm your otp to complete registration.',
                                'user_id': user.id})
+
 
 class HospitalViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -200,7 +202,12 @@ class HospitalViewSet(viewsets.ModelViewSet):
 
 class DoctorView(APIView):
     serializer_class = DoctorSerializer
-    def post(self,request,user_id,*args,**kwargs): 
+    # def get(self,request,*args,**kwargs):
+    #     username =self.request.user
+    #     doctor = Doctor.objects.filter(hospital__username=username)
+    #     serializer = DoctorSerializer(doctor, many=True)
+    #     return Response(serializer.data)
+    def post(self,request,*args,**kwargs): 
         serializer = DoctorSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -208,19 +215,18 @@ class DoctorView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HospitalProfile(APIView):
-    def get(self,request,user_id,*args,**kwargs):
-        user = User.objects.get(id=user_id)
-        doctor = Doctor.objects.filter(hospital__username = user)
-        serializer = DoctorSerializer(doctor, many=True)
+    permission_classes = [IsAuthenticated]
+    def get(self,request,*args,**kwargs):
+        user = request.user
+        doctor = Doctor.objects.filter(hospital__username=user)
+        serializer = DoctorSerializer(data=doctor, many=True)
+        serializer.is_valid()
         return Response(serializer.data)
-    def post(self,request,user_id,*args,**kwargs):
-        user = User.objects.get(id=user_id)
-        doctor = Doctor.objects.filter(hospital__username = user)
-        serializer = DoctorSerializer(doctor, many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self,request,user_id,*args,**kwargs):
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class MessageView(APIView):
     def get(self,request,*args,**kwargs):
@@ -306,12 +312,12 @@ class AppointmentProfileView(APIView):
 class UserProfileChangeAPIView(generics.RetrieveAPIView,
                                mixins.DestroyModelMixin,
                                mixins.UpdateModelMixin):
-    # permission_classes = (
-    #     permissions.IsAuthenticated,
-    #     UserIsOwnerOrReadOnly,
-    # )
+    permission_classes = (
+        permissions.IsAuthenticated
+    
+    )
     serializer_class = UserProfileChangeSerializer
-    parser_classes = (MultiPartParser, FormParser,)
+    # parser_classes = (MultiPartParser, FormParser,)
 
     def get_object(self):
         username = self.kwargs["username"]
@@ -323,6 +329,7 @@ class UserProfileChangeAPIView(generics.RetrieveAPIView,
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+        
 
 class UserProfileChangeHospitalAPIView(generics.RetrieveAPIView,
                                mixins.DestroyModelMixin,
@@ -332,7 +339,7 @@ class UserProfileChangeHospitalAPIView(generics.RetrieveAPIView,
     #     UserIsOwnerOrReadOnly,
     # )
     serializer_class = HospitalProfileChangeSerializer
-    parser_classes = (MultiPartParser, FormParser,)
+    # parser_classes = (MultiPartParser, FormParser,)
 
     def get_object(self):
         username = self.kwargs["username"]
@@ -344,6 +351,7 @@ class UserProfileChangeHospitalAPIView(generics.RetrieveAPIView,
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
 
 def index(request):
     return render(request, 'quickstart/index.html', {})
@@ -398,6 +406,15 @@ class HospitalRating(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class Hospital_Profile(APIView):
+    serializer_class = HospitalProfileChangeSerializer
+    def get(self,request,*args,**kwargs):
+        username = self.kwargs['username']
+        user =User.objects.get(username=username)
+        # print(user.id)
+        print(user.email)
+        return Response({'user_id':user.id,'User_email':user.email})
 
 
 class Cardiologists(APIView):

@@ -15,7 +15,7 @@ class User(AbstractUser):
     last_name=models.CharField(max_length=200)
     password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50) 
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
-    image =models.ImageField(upload_to='pics',null='True')
+    # image =models.ImageField(upload_to='pics',null='True')
     street_name = models.CharField(max_length=100,null=True)
 
 class Meta:
@@ -36,18 +36,18 @@ class Doctor(models.Model):
     last_name = models.CharField(max_length=100,null=True)
     Qualification = models.CharField(max_length=100)
     Years_of_Experience = models.IntegerField()
-    category=[
-        ('Cardio','Cardiologists'),
-        ('Derma','Dermatalogist'),
-        ('Immuno','Immunologists'),
-        ('Endocrin','Endocrinologists'),
-        ('Neuro','Neurologist'),
-        ('Path','Pathologist'),
-        ('Psych','Psychiatrists')
-    ]
-    Specialization = models.CharField(max_length=100,choices=category)
+    # category=[
+    #     ('Cardio','Cardiologists'),
+    #     ('Derma','Dermatalogist'),
+    #     ('Immuno','Immunologists'),
+    #     ('Endocrin','Endocrinologists'),
+    #     ('Neuro','Neurologist'),
+    #     ('Path','Pathologist'),
+    #     ('Psych','Psychiatrists')
+    # ]
+    Specialization = models.CharField(max_length=100,)
     Contact = models.IntegerField()
-    image = models.ImageField(upload_to='pics',null='True')
+    # image = models.ImageField(upload_to='pics',null='True')
     hospital = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
 class Rating(models.Model):

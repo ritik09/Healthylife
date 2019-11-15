@@ -50,7 +50,7 @@ class UserSerializer1(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['url','username','first_name','last_name','email','password','confirm_password']
+        fields=['url','id','username','first_name','last_name','email','password','confirm_password']
 
     def validate(self, data):
         password = data.get('password')
@@ -88,12 +88,12 @@ class UserSerializer2(serializers.ModelSerializer):
     password = serializers.CharField(style={'input_type': 'password'},required=True,
                                      allow_blank=False,allow_null=False)
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
-    image =serializers.ImageField(max_length=None)
+    # image =serializers.ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
 
     class Meta:
         model=User
-        fields=['url','username','hospital_name','email','password','confirm_password','image','street_name']
+        fields=['username','hospital_name','email','password','confirm_password','street_name']
 
     def validate(self, data):
         password = data.get('password')
@@ -105,10 +105,15 @@ class UserSerializer2(serializers.ModelSerializer):
         else:
             return data
 
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields =('username','password')
+
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','image','hospital')
+        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital')
 
     def validate_contact(self,contact):
         if len(contact)>10:
@@ -171,4 +176,4 @@ class UserProfileChangeSerializer(serializers.ModelSerializer):
 class HospitalProfileChangeSerializer(serializers.ModelSerializer):
      class Meta:
         model = User
-        fields=['username','hospital_name','email','password','confirm_password','image','street_name']
+        fields=['username','hospital_name','email','password','confirm_password','street_name']

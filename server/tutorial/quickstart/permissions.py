@@ -15,17 +15,13 @@ class IsUser(permissions.BasePermission):
 class IsNotActive(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_active == True:
-             return False
+            return False
         return True
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
-
-        # Write permissions are only allowed to the owner of the snippet.
         return obj.user.username == request.user.username
 

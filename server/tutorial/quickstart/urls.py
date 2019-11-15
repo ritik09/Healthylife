@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,DoctorView,HospitalProfile,HospitalViewSet,AppointmentView,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
+from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,DoctorView,HospitalProfile,HospitalViewSet,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
 from django.conf.urls import url
 from . import views
 app_name = 'quickstart'
@@ -15,12 +15,14 @@ urlpatterns = [
     url(r'^EnquiryView/(?P<user_id>[0-9]+)/$', EnquiryView.as_view()),
     url(r'^Patient_EnquiryView/(?P<user_id>[0-9]+)/$', Patient_EnquiryView.as_view()),
     url(r'^Patient_AppointmentView/(?P<user_id>[0-9]+)/$', EnquiryView.as_view()),
-    url(r'^hospital_profile/(?P<user_id>[0-9]+)/$',HospitalProfile.as_view(), name='hospital_profile'),
-    url(r'^hospital/(?P<user_id>[0-9]+)/$',DoctorView.as_view(),name='hospital'),
+    url(r'^hospital_profile/',HospitalProfile.as_view(), name='hospital_profile'),
+    url(r'^hospital/',DoctorView.as_view(),name='hospital'),
     path('message/', MessageView.as_view()),
     url(r'^resendotp/(?P<user_id>[0-9]+)/$',resendotp.as_view(), name='resend-otp'),
     path('', views.index, name='index'),
     url(r'^profile_user/(?P<username>[\w.@+-]+)/$', UserProfileChangeAPIView.as_view(), name='changeProfile'),
     url(r'^profile_hospital/(?P<username>[\w.@+-]+)/$', UserProfileChangeHospitalAPIView.as_view(), name='changeProfile'),
+    url(r'^hospital_rating/(?P<user_id>[0-9]+)/$', HospitalRating.as_view()),
+    url(r'^hospital_detail/(?P<username>[\w.@+-]+)/$', Hospital_Profile.as_view()),
     path('<str:room_name>/', views.room, name='room')
 ]

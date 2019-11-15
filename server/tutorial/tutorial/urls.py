@@ -43,11 +43,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # url(r'^api-token-auth/', views.obtain_auth_token),
     path('quickstart/',include('quickstart.urls')), 
-    
     path('', include(router.urls)),
-    path('login/', obtain_jwt_token),
+    url(r'^login/', obtain_jwt_token),
     path('login_as_hospital/', obtain_jwt_token),
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
+    # url(r'^validateotp_hospital/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('',include(default_router.urls)),
     # url(r'^log/$',views.Login.as_view()),
