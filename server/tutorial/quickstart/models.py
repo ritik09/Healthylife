@@ -6,6 +6,8 @@ from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
+def nameFile(instance, filename):
+    return '/'.join(['images', str(instance.name), filename])
 
 class User(AbstractUser):
     username=models.CharField(max_length=200,unique=True)
@@ -15,7 +17,7 @@ class User(AbstractUser):
     last_name=models.CharField(max_length=200)
     password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50) 
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
-    # image =models.ImageField(upload_to='pics',null='True')
+    image =models.ImageField(upload_to='pics',null='True')
     street_name = models.CharField(max_length=100,null=True)
 
 class Meta:
@@ -47,7 +49,7 @@ class Doctor(models.Model):
     # ]
     Specialization = models.CharField(max_length=100,)
     Contact = models.IntegerField()
-    # image = models.ImageField(upload_to='pics',null='True')
+    image = models.ImageField(upload_to='pics',null='True')
     hospital = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
 class Rating(models.Model):

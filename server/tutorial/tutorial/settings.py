@@ -151,6 +151,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ] 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 JWT_AUTH = {
     
     'JWT_ENCODE_HANDLER':
@@ -200,17 +201,22 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
-        # 'rest_framework.permissions.UserIsOwnerOrReadOnly',
-    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+
+    # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+    )
 }
+
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'quickstart.utils.jwt_response_payload_handler', 
