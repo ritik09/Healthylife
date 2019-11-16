@@ -125,37 +125,37 @@ class HOSPITAL_SIGN extends Component {
         Password: ${this.state.password}
         Image: ${this.state.image}
       `);
-      const postform = {
-         username: this.state.userName,
-         email: this.state.email,
-         password: this.state.password,
-         confirm_password: this.state.confirmPassword,
-         hospital_name: this.state.hospitalName,
-         street_name: this.state.location,
-      //  image: this.state.image + "/" +  this.state.image.name
-      }
-      // let form_data = new FormData();
-      // form_data.append('username',this.state.userName);
-      // form_data.append('email',this.state.email);
-      // form_data.append('password',this.state.password);
-      // form_data.append('confirm_password',this.state.confirmPassword);
-      // form_data.append('hospital_name',this.state.hospitalName);
-      // form_data.append('street_name',this.state.location);
-      // form_data.append('image',this.state.image + "/" +  this.state.image.name); 
-      // console.log(form_data);
-      this.postedform(postform);
+      // const postform = {
+      //    username: this.state.userName,
+      //    email: this.state.email,
+      //    password: this.state.password,
+      //    confirm_password: this.state.confirmPassword,
+      //    hospital_name: this.state.hospitalName,
+      //    street_name: this.state.location,
+      // //  image: this.state.image + "/" +  this.state.image.name
+      // }
+      const form_data = new FormData();
+      form_data.append('username',this.state.userName);
+      form_data.append('email',this.state.email);
+      form_data.append('password',this.state.password);
+      form_data.append('confirm_password',this.state.confirmPassword);
+      form_data.append('hospital_name',this.state.hospitalName);
+      form_data.append('street_name',this.state.location);
+      form_data.append('image',this.state.image); 
+      console.log(form_data);
+      console.log(form_data.get('image'));
+      this.postedform(form_data);
     } else {
       console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
-  postedform = (postform) => {
-    // console.log(form_data.get('email'));
-    fetch('https://b7cf50b9.ngrok.io/quickstart/signup_as_hospital/' , {
+  postedform = (form_data) => {
+    fetch('https://477f055c.ngrok.io/hospitals_signup/' , {
         method: 'POST',
-        body: JSON.stringify(postform),
+        body: form_data,
         headers: {
-          "Content-Type": "application/json",
-      // //  "Accept": "application/json",
+      // "Content-Type": "multipart/form-data",
+      //  "Accept": "application/json",
       // "type": "formData"
       }
     }).then((response) => response.json())
@@ -209,8 +209,10 @@ class HOSPITAL_SIGN extends Component {
     this.setState({ formErrors, [name]: value }, () => console.log(this.state));
   };
   handleImageChange = (e) => {
+    console.log(e.target.files[0])
     this.setState({
-      image: e.target.files[0]
+      image: e.target.files[0],
+      loaded:0
     })
   };
 
@@ -222,7 +224,7 @@ class HOSPITAL_SIGN extends Component {
       <div className="wrapper">
         <div className="form-wrapper">
           <h1>Create Account</h1>
-          <form onSubmit={this.handleSubmit} noValidate>
+          <form  noValidate>
           <div className="userName">
               <label htmlFor="userName">User Name</label>
               <input
@@ -285,7 +287,7 @@ class HOSPITAL_SIGN extends Component {
                 className={formErrors.image.length > 0 ? "error" : null}
                 type="file"
                 name="image"
-                accept="image/png, image/jpeg"
+                
                 noValidate
                 onChange={this.handleImageChange}
               />
@@ -322,7 +324,7 @@ class HOSPITAL_SIGN extends Component {
               )}
             </div>
             <div className="createAccount">
-              <button type="submit">Create Account</button>
+              <button onClick = {this.handleSubmit} type="button">Create Account</button>
               <small>Already Have an Account?
               <Link to = "/login_hospital" style = {{ 
                     // display:"block",

@@ -11,6 +11,7 @@ class HOSPITAL_EDIT_PROFILE extends Component {
       location: null,
       password: null,
       confirmPassword: null,
+      email: null,
       formErrors: {
           userName: "",
         hospitalName: "",
@@ -22,17 +23,16 @@ class HOSPITAL_EDIT_PROFILE extends Component {
   }
 
   componentDidMount() {
-    fetch(`https://b7cf50b9.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
+    fetch(`https://31a6d177.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
     .then(response => response.json())
     .then((data) => {
       this.setState({
           userName: data.username,
           hospitalName: data.hospital_name,
           location:data.street_name,
-          password:data.confirm_password,
-          confirmPassword:data.confirm_password
+          email: data.email
     })
-      console.log(this.state.hospitals)
+      console.log(this.state)
     })
     .catch((error) => {
       //Error 
@@ -123,7 +123,8 @@ class HOSPITAL_EDIT_PROFILE extends Component {
          password: this.state.password,
          confirm_password: this.state.confirmPassword,
          hospital_name: this.state.hospitalName,
-         street_name: this.state.location
+         street_name: this.state.location,
+         email: this.state.email
       }
       console.log(postform);
       this.postedform(postform);
@@ -132,8 +133,8 @@ class HOSPITAL_EDIT_PROFILE extends Component {
     }
   };
   postedform = (postform) => {
-    fetch(`https://b7cf50b9.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/` , {
-        method: 'POST',
+    fetch(`https://31a6d177.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/` , {
+        method: 'PUT',
         body: JSON.stringify(postform),
         headers: {
           // Accept: 'application/json, text/plain, */*',

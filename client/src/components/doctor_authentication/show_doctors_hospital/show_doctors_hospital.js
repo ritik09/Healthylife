@@ -5,7 +5,7 @@ class SHOW_DOCTORS_HOSPITAL extends Component {
     doctors: []
   }
   componentDidMount() {
-    fetch('https://b7cf50b9.ngrok.io/quickstart/hospital_profile/' , {
+    fetch('https://31a6d177.ngrok.io/quickstart/hospital_profile/' , {
         method: 'GET',
         headers: {
           'Authorization': 'JWT ' + localStorage.getItem('token') ,

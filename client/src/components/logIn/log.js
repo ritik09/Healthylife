@@ -72,7 +72,7 @@ class LOG extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch('https://f6a8cd9f.ngrok.io/login/' , {
+      fetch('https://31a6d177.ngrok.io/login/' , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {
@@ -84,7 +84,8 @@ class LOG extends Component {
         console.log(responseJson);
         console.log(responseJson.token);
         localStorage.setItem('token',responseJson.token);
-        window.location.href = "/";
+        localStorage.setItem('user_name',responseJson.username);
+        window.location.href = "/user_profile";
         // localStorage.get('token')
       })
       .catch((error) => {

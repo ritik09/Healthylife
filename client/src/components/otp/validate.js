@@ -60,7 +60,7 @@ class VALIDATE extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch(`https://f6a8cd9f.ngrok.io/validateotp/${localStorage.getItem('user_id')}/` , {
+      fetch(`https://31a6d177.ngrok.io/validateotp/${localStorage.getItem('user_id')}/` , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {

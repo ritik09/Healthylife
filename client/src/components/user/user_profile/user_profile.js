@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-class HOSPITAL_PROFILE extends Component {
+class USER_PROFILE extends Component {
   state = {
-    hospitals: [],
+    user: [],
     image_path:""
  }
   componentDidMount() {
-    fetch(`https://477f055c.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
+    fetch(`https://31a6d177.ngrok.io/quickstart/profile_user/${localStorage.getItem('user_name')}/`)
     .then(response => response.json())
     .then((data) => {
-      this.setState({ hospitals: data })
-      console.log(this.state.hospitals)
+      this.setState({ user: data })
+      console.log(this.state.user)
     })
     .catch((error) => {
       //Error 
@@ -25,18 +25,17 @@ class HOSPITAL_PROFILE extends Component {
     return (
        <div className="container">
         <div className="col-xs-12">
-        <h1>HOSPITAL_PROFILE</h1>
+        <h1>USER PROFILE</h1>
           
           <div className="card">
             <div className="card-body">
-            <h5 className="card-title">
-                <img src = {"https://f6a8cd9f.ngrok.io/" + this.state.hospitals.image.split('/')[3] + "/" + this.state.hospitals.image.split('/')[4] +  "/" + this.state.hospitals.image.split('/')[5]}
-               alt = ""/></h5>
-              <h5 className="card-title">{this.state.hospitals.hospital_name}</h5>
-              <h5 className="card-title">{this.state.hospitals.street_name}</h5>
-              <h5 className="card-title">{this.state.hospitals.user_name}</h5>
-              <h5 className="card-title">{this.state.hospitals.email}</h5>
-              <h5 className="card-title">
+            {/* <h5 className="card-title">
+                <img src = {"https://f6a8cd9f.ngrok.io/" + hospitals.image.split('/')[3] + "/" + hospitals.image.split('/')[4] +  "/" + hospitals.image.split('/')[5]}
+               alt = ""/></h5> */}
+              <h5 className="card-title">{this.state.user.username}</h5>
+              <h5 className="card-title">{this.state.user.email}</h5>
+              <h5 className="card-title">{this.state.user.first_name} {this.state.user.last_name}</h5>
+              {/* <h5 className="card-title">
               <Link to = "/doctor_signup" style = {{ 
                     // display:"block",
                     // fontSize: "2rem",
@@ -56,7 +55,7 @@ class HOSPITAL_PROFILE extends Component {
                     // fontSize: "2rem",
                   borderBottom: "6px solid blue"
                }} className="font-weight-bold"><u>DOCTORS</u></Link>
-              </h5>
+              </h5> */}
             </div>
           </div>
         </div>
@@ -65,4 +64,4 @@ class HOSPITAL_PROFILE extends Component {
   }
   
 }
-export default HOSPITAL_PROFILE;
+export default USER_PROFILE;

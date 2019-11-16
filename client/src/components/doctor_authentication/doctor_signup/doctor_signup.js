@@ -179,7 +179,7 @@ class DOCTOR_SIGNUP extends Component {
     }
   };
   postedform = (postform) => {
-    fetch('https://b7cf50b9.ngrok.io/quickstart/hospital/' , {
+    fetch('https://31a6d177.ngrok.io/quickstart/hospital/' , {
         method: 'POST',
         body: JSON.stringify(postform),
         headers: {

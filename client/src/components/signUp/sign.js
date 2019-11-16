@@ -127,7 +127,7 @@ class SIGN extends Component {
     }
   };
   postedform = (postform) => {
-    fetch('https://f6a8cd9f.ngrok.io/quickstart/signup/' , {
+    fetch('https://31a6d177.ngrok.io/quickstart/signup_as_user/' , {
         method: 'POST',
         body: JSON.stringify(postform),
         headers: {

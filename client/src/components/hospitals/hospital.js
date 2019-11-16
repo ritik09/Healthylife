@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class HOSPITAL extends Component {
   state = {
@@ -7,7 +8,7 @@ class HOSPITAL extends Component {
     image_path:""
   }
   componentDidMount() {
-    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+    fetch('https://31a6d177.ngrok.io/hospitals/')
     .then(response => response.json())
     .then((data) => {
       this.setState({ hospitals: data })
@@ -20,13 +21,13 @@ class HOSPITAL extends Component {
   });
   }
 
-  setHospitalName(hospitalName){
-    this.setState({
-      hospital_name:hospitalName
-    })
-    localStorage.setItem('hospital_name',this.state.hospital_name);
-      window.location.href = "/hospital_profile_user";
-  }
+  // setHospitalName(hospitalName){
+  //   this.setState({
+  //     hospital_name:hospitalName
+  //   })
+  //   localStorage.setItem('hospital_name',this.state.hospital_name);
+  //     // window.location.href = "/hospital_profile_user";
+  // }
 
   render() {
 
@@ -38,15 +39,17 @@ class HOSPITAL extends Component {
           
           <div className="card">
             <div className="card-body">
-            <h5 className="card-title">
+            {/* <h5 className="card-title">
                 <img src = {"https://f6a8cd9f.ngrok.io/" + hospital.image.split('/')[3] + "/" + hospital.image.split('/')[4] +  "/" + hospital.image.split('/')[5]}
-         alt = ""/></h5>
+         alt = ""/></h5> */}
               <h5 className="card-title">{hospital.hospital_name}</h5>
               <h5 className="card-title">{hospital.street_name}</h5>
               <h5 className="card-title">
-              <form>
-              <button onClick = {this.setHospitalName(hospital.hospital_name)} type="submit">VIEW PROFILE</button>
-              </form>
+              <Link to = {`/doctor/${hospital.id}`} style = {{ 
+                    // display:"block",
+                    // fontSize: "2rem",
+                  borderBottom: "6px solid blue"
+               }} className="font-weight-bold"><u>DOCTORS</u></Link>
               </h5>
             </div>
           </div>
