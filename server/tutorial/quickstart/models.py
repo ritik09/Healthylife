@@ -52,6 +52,8 @@ class Doctor(models.Model):
     image = models.ImageField(upload_to='pics',null='True')
     hospital = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
+
+
 class Rating(models.Model):
     user = models.ForeignKey(Doctor,on_delete=models.CASCADE)
     star = models.IntegerField()
@@ -61,19 +63,16 @@ class Rating(models.Model):
 
 class Enquiry(models.Model):
     username = models.CharField(max_length=100)
-    age = models.IntegerField()
-    category1 =[
-        ('M','Male'),
-        ('F','Female')
-    ]
-    gender = models.CharField(max_length=50,choices=category1)
-    Problem = models.TextField(max_length=300)
+    contact=models.CharField(max_length=10,null=True)
+    Query = models.TextField(max_length=300)
     hospital_name = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
 class ReplyEnquiry(models.Model):
+    enquiry=models.CharField(max_length=500,null=True)
     reply = models.CharField(max_length=500)
-    username = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    
+    username = models.CharField(max_length=100,null=True)
+    hospital_name = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+
 class Message(models.Model):
     author = models.ForeignKey(User,related_name='author_messages',on_delete=models.CASCADE)
     content = models.TextField()
@@ -88,14 +87,9 @@ class Message(models.Model):
 
 class Appointment(models.Model):
     username = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
     contact = models.CharField(max_length=15)
-    category1 =[
-        ('M','Male'),
-        ('F','Female')
-    ]
-    gender = models.CharField(max_length=50,choices=category1)
-    doctor_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100,null=True)
     hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
 
 class AppointmentType(models.Model):

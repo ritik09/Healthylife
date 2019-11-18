@@ -143,7 +143,7 @@ class UserSerializer2(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['username','hospital_name','email','password','confirm_password','street_name','image']
+        fields=['username','hospital_name','email','password','confirm_password','street_name','image','id']
 
     def validate(self, data):
         password = data.get('password')
@@ -163,7 +163,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id')
+        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image')
 
     def validate_contact(self,contact):
         if len(contact)>10:
@@ -176,7 +176,7 @@ class DoctorSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields=('username','email','contact','gender','doctor_name','hospital_name')
+        fields=('username','contact','first_name','last_name','hospital_name')
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -197,12 +197,12 @@ class PhoneOtpSerializer(serializers.ModelSerializer):
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enquiry
-        fields = ['username','age','gender','Problem','hospital_name']
+        fields = ['username','Query','contact','hospital_name','id']
 
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReplyEnquiry
-        fields = ['reply','username']
+        fields = ['enquiry','reply','username','id','hospital_name']
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -219,11 +219,12 @@ class UserProfileChangeSerializer(serializers.ModelSerializer):
 class HospitalProfileChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=['username','hospital_name','email','password','confirm_password','street_name']
+        fields=['username','hospital_name','email','password','confirm_password','street_name','image']
 
     validate_password = make_password
 
 class doctorSerializer(serializers.ModelSerializer):
     class Meta:
         model=Doctor
-        fields =['first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id']
+        image = Base64ImageField(max_length=None)
+        fields =['first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image']

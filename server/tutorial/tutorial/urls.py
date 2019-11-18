@@ -32,7 +32,7 @@ from django_otp.forms import OTPAuthenticationForm
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'hospitals',views.HospitalViewSet,basename='hospitals')
-router.register(r'hospitals_signup',views.Sign_Up_Hospital)
+# router.register(r'hospitals_signup',views.Sign_Up_Hospital)
 # router.register(r'^hospital_profile/(?P<user_id>[0-9]+)/$', views.HospitalProfile, basename='hospital_profile'),
 # router.register(r'^hospital/(?P<user_id>[0-9]+)/$',views.DoctorView, basename='hospital'),
 default_router = DefaultRouter(trailing_slash=False)
@@ -46,7 +46,7 @@ urlpatterns = [
     path('quickstart/',include('quickstart.urls')), 
     path('', include(router.urls)),
     url(r'^login/', obtain_jwt_token),
-    # path('login_as_hospital/', obtain_jwt_token),
+    path('login_as_hospital/', obtain_jwt_token),
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     # url(r'^validateotp_hospital/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
