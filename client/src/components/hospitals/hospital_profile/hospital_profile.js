@@ -7,11 +7,19 @@ class HOSPITAL_PROFILE extends Component {
     image_path:""
  }
   componentDidMount() {
-    fetch(`https://477f055c.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
+    fetch(`https://b3013e76.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`, {
+      method: 'GET',
+      headers: {
+     'Authorization' : 'JWT ' + localStorage.getItem('token')
+    }
+  })
     .then(response => response.json())
     .then((data) => {
-      this.setState({ hospitals: data })
+      this.setState({ hospitals: data,
+      image_path:"https://b3013e76.ngrok.io/" + data.image.split('/')[3] + "/" + data.image.split('/')[4] +  "/" + data.image.split('/')[5]
+     })
       console.log(this.state.hospitals)
+      console.log(this.state.image_path)
     })
     .catch((error) => {
       //Error 
@@ -29,8 +37,9 @@ class HOSPITAL_PROFILE extends Component {
           
           <div className="card">
             <div className="card-body">
+              {console.log(this.state.hospitals.image)}
             <h5 className="card-title">
-                <img src = {"https://f6a8cd9f.ngrok.io/" + this.state.hospitals.image.split('/')[3] + "/" + this.state.hospitals.image.split('/')[4] +  "/" + this.state.hospitals.image.split('/')[5]}
+                <img src = {this.state.image_path} className = "img-responsive"
                alt = ""/></h5>
               <h5 className="card-title">{this.state.hospitals.hospital_name}</h5>
               <h5 className="card-title">{this.state.hospitals.street_name}</h5>
@@ -57,8 +66,31 @@ class HOSPITAL_PROFILE extends Component {
                   borderBottom: "6px solid blue"
                }} className="font-weight-bold"><u>DOCTORS</u></Link>
               </h5>
+              <h5 className="card-title">
+              <Link to = "/inquiries" style = {{ 
+                    // display:"block",
+                    // fontSize: "2rem",
+                  borderBottom: "6px solid blue"
+               }} className="font-weight-bold"><u>INQUIRIES</u></Link>
+              </h5>
+              {/* <h5 className="card-title">
+              <Link to = "/approve_appointment" style = {{ 
+                    // display:"block",
+                    // fontSize: "2rem",
+                  borderBottom: "6px solid blue"
+               }} className="font-weight-bold"><u>APPROVE APPONITMENT</u></Link>
+              </h5> */}
+               {/* <h5 className="card-title">
+              <Link to = "/show_hospital_appointment" style = {{ 
+                    // display:"block",
+                    // fontSize: "2rem",
+                  borderBottom: "6px solid blue"
+               }} className="font-weight-bold"><u>APPOINTMENTS</u></Link>
+              </h5> */}
+              
             </div>
           </div>
+
         </div>
        </div>
     );

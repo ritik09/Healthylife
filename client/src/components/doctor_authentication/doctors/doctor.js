@@ -9,7 +9,12 @@ class DOCTOR extends Component {
   }
   componentDidMount() {
     console.log(this.state.id);
-    fetch(`https://31a6d177.ngrok.io/quickstart/hospital_doctor/${this.state.id}`)
+    fetch(`https://b3013e76.ngrok.io/quickstart/hospital_doctor/${this.state.id}`,{
+      method: 'GET',
+      headers: {
+     'Authorization' : 'JWT ' + localStorage.getItem('token')
+    }
+  })
     .then(response => response.json())
     .then((data) => {
       this.setState({ doctors: data })
@@ -29,7 +34,7 @@ class DOCTOR extends Component {
        <div className="container">
         <div className="col-xs-12">
         <h1>DOCTORS</h1>
-        {this.state.doctors.map((doctor,index) => (
+        {this.state.doctors.map((doctor) => (
           
           <div className="card">
             <div className="card-body">
@@ -39,7 +44,7 @@ class DOCTOR extends Component {
               <h5 className="card-title">{doctor.first_name}</h5>
               <h5 className="card-title">{doctor.Qualification}</h5>
               <h5 className="card-title">
-              <Link to = {`/doctor_profile_user/${doctor.id}`} style = {{ 
+              <Link to = {`/doctor_profile_user/${doctor.id}/${this.state.id}`} style = {{ 
                     // display:"block",
                     // fontSize: "2rem",
                   borderBottom: "6px solid blue"
@@ -48,6 +53,11 @@ class DOCTOR extends Component {
             </div>
           </div>
         ))}
+        <Link to = {`/inquiry_form/${this.state.id}`} style = {{ 
+                    // display:"block",
+                    // fontSize: "2rem",
+                  borderBottom: "6px solid blue"
+               }} className="font-weight-bold"><u>INQUIRY</u></Link>
         </div>
        </div>
     );

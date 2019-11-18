@@ -15,9 +15,13 @@ import DOCTOR_PROFILE_USER from '../doctor_authentication/doctor_profile_user/do
 import DOCTOR from '../doctor_authentication/doctors/doctor';
 // import SHOW_USER_APPOINTMENT from '../appointments/show_appointment_user/show_appointment_user';
 //import SHOW_HOSPITAL_APPOINTMENT from '../appointments/show_appointment_hospital/show_appointment_hospital';
+// import APPROVE_APPOINTMENT from '../appointments/aproove_appointment/aproove_hospital';
 import HOSPITAL_SIGN from '../hospitals/hospital_register/hospital_register';
 import SHOW_DOCTORS_HOSPITAL from '../doctor_authentication/show_doctors_hospital/show_doctors_hospital';
 import USER_PROFILE from '../user/user_profile/user_profile';
+import INQUIRY_FORM from '../inquiry/inquiry_form/inquiry_form';
+import INQUIRIES from '../inquiry/inquiry_show_hospital/inquiry_show_hospital';
+import SHOW_REPLY from '../inquiry/show_reply_inquiry/show_reply_inquiry';
 
 class Buildcontrols extends Component{
     render(){
@@ -34,13 +38,17 @@ class Buildcontrols extends Component{
                     <Route path="/doctor_signup" component={DOCTOR_SIGNUP} />
                     <Route path="/hospital_profile" component={HOSPITAL_PROFILE} />
                      <Route path="/hospital_edit_profile" component={HOSPITAL_EDIT_PROFILE} />
-                     <Route path="/doctor_profile_user/:id" component={DOCTOR_PROFILE_USER} />
+                     <Route path="/doctor_profile_user/:id/:id_hospital" component={DOCTOR_PROFILE_USER} />
                      <Route path="/doctor/:id" component={DOCTOR} />
                     {/* <Route path="/show_user_appointment" component={SHOW_USER_APPOINTMENT} />
-                     <Route path="/show_hospital_appointment" component={SHOW_HOSPITAL_APPOINTMENT} /> */}
+                     <Route path="/show_hospital_appointment" component={SHOW_HOSPITAL_APPOINTMENT} />
+                   <Route path="/approve_appointment" component={APPROVE_APPOINTMENT} /> */}
                     <Route path="/hospital_sign" component={HOSPITAL_SIGN} />
                     <Route path="/show_doctors_hospital" component={SHOW_DOCTORS_HOSPITAL} />
                     <Route path="/user_profile" component={USER_PROFILE} />
+                    <Route path="/inquiry_form/:id" component={INQUIRY_FORM} />
+                    <Route path="/inquiries" component={INQUIRIES} />
+                    <Route path="/show_reply" component={SHOW_REPLY} />
                     <Route path="/" component={HOME} />
                 </Switch>
 </div>

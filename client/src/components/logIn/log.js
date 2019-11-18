@@ -72,7 +72,7 @@ class LOG extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch('https://31a6d177.ngrok.io/login/' , {
+      fetch('https://b3013e76.ngrok.io/login/' , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {

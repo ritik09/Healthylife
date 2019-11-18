@@ -6,10 +6,11 @@ class APPOINTMENT extends Component {
     state = {
         user: [],
         getAppointmentModal: false,
-        doctorName:null,
+        doctorFirstName:this.props.doctor_first_name,
+        doctorLastName:this.props.doctor_last_name,
+        hospital_id:this.props.hospital_id,
+        qualification:this.props.qualification,
         hospitalName:null,
-        userName:null,
-        email:null,
         phoneNumber:null
       }
 
@@ -27,16 +28,19 @@ class APPOINTMENT extends Component {
     }
 
       componentDidMount() {
-        //   user_id url
-        fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+        console.log(this.state.hospital_id)
+        fetch(`https://b3013e76.ngrok.io/quickstart/hospital_name/${this.state.hospital_id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization' : 'JWT ' + localStorage.getItem('token')         
+          }
+      })
         .then(response => response.json())
         .then((data) => {
           this.setState({ 
               user: data,
-              doctorName:localStorage.getItem('doctor_name'),
-              hospitalName:localStorage.getItem('hospital_name'),
-              email:data.email,
-              userName:data.user_name
+              // doctorName:localStorage.getItem('doctor_name'),
+              hospitalName:data.hospital_name
         })
           console.log(this.state.user)
         })
@@ -53,18 +57,17 @@ class APPOINTMENT extends Component {
         if (this.state.phoneNumber.length == 10) {
           console.log(`
             --SUBMITTING--
-            User Name: ${this.state.userName}
             Hospital Name: ${this.state.hospitalName}
-            Doctor Name: ${this.state.doctorName}
-            Email: ${this.state.email}
+            Doctor Name: ${this.state.doctorFirstName + " " + this.state.doctorLastName}
             Phone Number: ${this.state.phoneNumber}
+            User Name: ${localStorage.getItem('user_name')}
           `);
           const postform = {
-             username: this.state.userName,
-             email: this.state.email,
-             hospital_name: this.state.hospitalName,
-             doctor_name: this.state.doctorName,
-             phone_number: this.state.phoneNumber
+             username: localStorage.getItem('user_name'),
+             hospital_name: this.state.hospital_id,
+             first_name: this.state.doctorFirstName,
+             last_name: this.state.doctorLastName,
+             contact: this.state.phoneNumber
           }
           this.postedform(postform)
         } else {
@@ -72,11 +75,13 @@ class APPOINTMENT extends Component {
         }
       };
       postedform = (postform) => {
-        fetch('https://f6a8cd9f.ngrok.io/quickstart/signup/' , {
+        fetch('https://b3013e76.ngrok.io/quickstart/make_appointment/' , {
             method: 'POST',
             body: JSON.stringify(postform),
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization' : 'JWT ' + localStorage.getItem('token')
           }
         }).then((response) => response.json())
         .then((responseJson) => {
@@ -110,10 +115,13 @@ class APPOINTMENT extends Component {
               APPLY</div></ModalHeader>
           <ModalBody className = "text-center">
               <div>
-                  <b>Doctor Name:</b>{this.state.doctorName}
+                  <b>Doctor Name:</b>{this.state.doctorFirstName + " " + this.state.doctorLastName}
               </div>
               <div>
                   <b>Hospital Name:</b>{this.state.hospitalName}
+              </div>
+              <div>
+                  <b>Qulaification:</b>{this.state.qualification}
               </div>
               <div>
                   Enter your Phone Number
@@ -131,7 +139,7 @@ class APPOINTMENT extends Component {
           </ModalBody>
           <ModalFooter>
           <form onSubmit={this.handleSubmit}>
-              <Button color="secondary" onClick={this.toggle}>Submit</Button>
+              <Button color="secondary" onClick={this.toggle} type = "submit">Submit</Button>
               </form>
           </ModalFooter>
         </Modal>

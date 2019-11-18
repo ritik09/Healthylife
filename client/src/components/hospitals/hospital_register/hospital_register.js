@@ -150,7 +150,7 @@ class HOSPITAL_SIGN extends Component {
     }
   };
   postedform = (form_data) => {
-    fetch('https://477f055c.ngrok.io/hospitals_signup/' , {
+    fetch('https://b3013e76.ngrok.io/quickstart/signup_as_hospital/' , {
         method: 'POST',
         body: form_data,
         headers: {

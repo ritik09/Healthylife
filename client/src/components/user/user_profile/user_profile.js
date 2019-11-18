@@ -7,7 +7,12 @@ class USER_PROFILE extends Component {
     image_path:""
  }
   componentDidMount() {
-    fetch(`https://31a6d177.ngrok.io/quickstart/profile_user/${localStorage.getItem('user_name')}/`)
+    fetch(`https://b3013e76.ngrok.io/quickstart/profile_user/${localStorage.getItem('user_name')}/`,{
+      method: 'GET',
+      headers: {
+     'Authorization' : 'JWT ' + localStorage.getItem('token')
+    }
+  })
     .then(response => response.json())
     .then((data) => {
       this.setState({ user: data })
@@ -35,27 +40,27 @@ class USER_PROFILE extends Component {
               <h5 className="card-title">{this.state.user.username}</h5>
               <h5 className="card-title">{this.state.user.email}</h5>
               <h5 className="card-title">{this.state.user.first_name} {this.state.user.last_name}</h5>
-              {/* <h5 className="card-title">
-              <Link to = "/doctor_signup" style = {{ 
+              <h5 className="card-title">
+              {/* <Link to = "/doctor_signup" style = {{ 
                     // display:"block",
                     // fontSize: "2rem",
                   borderBottom: "6px solid blue"
                }} className="font-weight-bold"><u>ADD DOCTOR</u></Link>
               </h5>
-              <h5 className="card-title">
-              <Link to = "/hospital_edit_profile" style = {{ 
+              <h5 className="card-title"> */}
+              {/* <Link to = "/hospital_edit_profile" style = {{ 
                     // display:"block",
                     // fontSize: "2rem",
                   borderBottom: "6px solid blue"
                }} className="font-weight-bold"><u>Edit Profile</u></Link>
               </h5>
-              <h5 className="card-title">
-              <Link to = "/show_doctors_hospital" style = {{ 
+              <h5 className="card-title"> */}
+              <Link to = "/show_reply" style = {{ 
                     // display:"block",
                     // fontSize: "2rem",
                   borderBottom: "6px solid blue"
-               }} className="font-weight-bold"><u>DOCTORS</u></Link>
-              </h5> */}
+               }} className="font-weight-bold"><u>Inquiries</u></Link>
+              </h5>
             </div>
           </div>
         </div>

@@ -72,7 +72,7 @@ class LOG_HOSPITAL extends Component {
   };
   postedform = (postform) => {
     console.log(postform);
-      fetch('https://31a6d177.ngrok.io/login_as_hospital/' , {
+      fetch('https://b3013e76.ngrok.io/login_as_hospital/' , {
           method: 'POST',
           body: JSON.stringify(postform),
           headers: {

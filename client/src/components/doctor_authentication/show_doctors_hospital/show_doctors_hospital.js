@@ -5,11 +5,10 @@ class SHOW_DOCTORS_HOSPITAL extends Component {
     doctors: []
   }
   componentDidMount() {
-    fetch('https://31a6d177.ngrok.io/quickstart/hospital_profile/' , {
+    fetch('https://b3013e76.ngrok.io/quickstart/hospital_profile/' , {
         method: 'GET',
         headers: {
-          'Authorization': 'JWT ' + localStorage.getItem('token') ,
-          'Content-Type': 'application/json'
+          'Authorization': 'JWT ' + localStorage.getItem('token') 
       }
     })
     .then(response => response.json())
@@ -34,10 +33,10 @@ class SHOW_DOCTORS_HOSPITAL extends Component {
           
           <div className="card">
             <div className="card-body">
-            {/* <h5 className="card-title">
-                <img src = {"https://f6a8cd9f.ngrok.io/" + hospital.image.split('/')[3] + "/" + hospital.image.split('/')[4] +  "/" + hospital.image.split('/')[5]}
-         alt = ""/></h5> */}
-              <h5 className="card-title">{doctor.first_name} + {" "} + {doctor.last_name}</h5>
+            <h5 className="card-title">
+                <img src = {"https://b3013e76.ngrok.io" + doctor.image}
+         alt = ""/></h5>
+              <h5 className="card-title">{doctor.first_name} {doctor.last_name}</h5>
               <h5 className="card-title">{doctor.Specialisation}</h5>
               <h5 className="card-title">{doctor.Qualification}</h5>
               <h5 className="card-title">{doctor.Contact}</h5>

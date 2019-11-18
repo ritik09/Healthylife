@@ -18,6 +18,7 @@ class DOCTOR_SIGNUP extends Component {
       qualification: null,
       yearOfExperience: null,
       phoneNumber: null,
+      image: null,
       // password: null,
       // confirmPassword: null,
       formErrors: {
@@ -28,6 +29,7 @@ class DOCTOR_SIGNUP extends Component {
       qualification: "",
       yearOfExperience: "",
       phoneNumber: "",
+      image: ""
         // password: "",
         // confirmPassword: ""
       }
@@ -67,6 +69,7 @@ class DOCTOR_SIGNUP extends Component {
     let qualificationError = "";
     let yearOfExperienceError = "";
     let phoneNumberError = "";
+    let imageError = "";
     // let passwordError = "";
     // let confirmPasswordError = "";
     if (!this.state.firstName) {
@@ -87,6 +90,12 @@ class DOCTOR_SIGNUP extends Component {
     // else {
     //     emailError = "";
     // }
+    if (!this.state.image) {
+      imageError = "choose image";
+    }
+    else {
+        imageError = "";
+    }
     if (!this.state.speciality) {
         specialityError = "this field cannot be blank";
     }
@@ -124,7 +133,7 @@ class DOCTOR_SIGNUP extends Component {
     //     confirmPasswordError = "";
     // }
 
-    if(firstNameError || lastNameError || specialityError || qualificationError || yearOfExperienceError || phoneNumberError){
+    if(firstNameError || lastNameError || specialityError || qualificationError || imageError || yearOfExperienceError || phoneNumberError){
       this.setState(prevState => ({
         formErrors: {
           ...prevState.formErrors,
@@ -135,6 +144,7 @@ class DOCTOR_SIGNUP extends Component {
           qualification: qualificationError,
           yearOfExperience: yearOfExperienceError,
           phoneNumber: phoneNumberError, 
+          image: imageError
           // password: passwordError,
           // confirmPassword: confirmPasswordError
         }
@@ -158,39 +168,50 @@ class DOCTOR_SIGNUP extends Component {
         Qualification: ${this.state.qualification}
         Year Of experience: ${this.state.yearOfExperience}
         Phone Number: ${this.state.phoneNumber}
-        // Password: ${this.state.password}
-        // Confirm Password: ${this.state.confirmPassword}
+        Image: ${this.state.image}
       `);
-      const postform = {
-        //  email: this.state.email,
-        //  password: this.state.password,
-        //  confirm_password: this.state.confirmPassword,
-         first_name: this.state.firstName,
-         last_name: this.state.lastName,
-         Qualification: this.state.qualification,
-         Specialization: this.state.speciality,
-         Years_of_Experience: this.state.yearOfExperience,
-         Contact: this.state.phoneNumber,
-         hospital: localStorage.getItem('user_id')
-      }
-      this.postedform(postform)
+      // const postform = {
+      //   //  email: this.state.email,
+      //   //  password: this.state.password,
+      //   //  confirm_password: this.state.confirmPassword,
+      //    first_name: this.state.firstName,
+      //    last_name: this.state.lastName,
+      //    Qualification: this.state.qualification,
+      //    Specialization: this.state.speciality,
+      //    Years_of_Experience: this.state.yearOfExperience,
+      //    Contact: this.state.phoneNumber,
+      //    hospital: localStorage.getItem('user_id'),
+      // }
+      const form_data = new FormData();
+      form_data.append('first_name',this.state.firstName);
+      form_data.append('last_name',this.state.lastName);
+      form_data.append('Qualification',this.state.qualification);
+      form_data.append('Specialization',this.state.speciality);
+      form_data.append('Years_of_Experience',this.state.yearOfExperience);
+      form_data.append('Contact',this.state.phoneNumber);
+      form_data.append('hospital',localStorage.getItem('user_id'));
+      form_data.append('image',this.state.image); 
+      console.log(form_data);
+      console.log(form_data.get('image'));
+      this.postedform(form_data);
     } else {
       console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
   postedform = (postform) => {
-    fetch('https://31a6d177.ngrok.io/quickstart/hospital/' , {
+    console.log(postform.get('image'));
+    fetch('https://b3013e76.ngrok.io/quickstart/hospital/' , {
         method: 'POST',
-        body: JSON.stringify(postform),
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token') ,
-          'Content-Type': 'application/json'
-      }
+        body: postform,
+      //   headers: {
+      //     'Authorization': 'JWT' + localStorage.getItem('token') ,
+      //     // 'Content-Type': 'application/json'
+      // }
     }).then((response) => response.json())
     .then((responseJson) => {
       console.log(responseJson);
       // localStorage.setItem('user_id',responseJson.user_id);
-      // window.location.href = "/hospital_profile";
+      window.location.href = "/hospital_profile";
     })
     .catch((error) => {
       //Error 
@@ -236,6 +257,15 @@ class DOCTOR_SIGNUP extends Component {
 
     this.setState({ formErrors, [name]: value }, () => console.log(this.state));
   };
+
+  handleImageChange = (e) => {
+    console.log(e.target.files[0])
+    this.setState({
+      image: e.target.files[0],
+      loaded:0
+    })
+  };
+
 
   render() {
     const { formErrors } = this.state;
@@ -342,6 +372,20 @@ class DOCTOR_SIGNUP extends Component {
               />
               {formErrors.yearOfExperience.length > 0 && (
                 <span className="errorMessage">{formErrors.yearOfExperience}</span>
+              )}
+            </div>
+            <div className="image">
+              <label htmlFor="image">Image</label>
+              <input
+                className={formErrors.image.length > 0 ? "error" : null}
+                type="file"
+                name="image"
+                
+                noValidate
+                onChange={this.handleImageChange}
+              />
+              {formErrors.image.length > 0 && (
+                <span className="errorMessage">{formErrors.image}</span>
               )}
             </div>
             {/* <div className="password">

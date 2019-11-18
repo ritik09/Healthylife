@@ -6,7 +6,7 @@ class SHOW_HOSPITAL_APPOINTMENT extends Component {
   }
   componentDidMount() {
       // fetch appointment url
-    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+    fetch('https://b3013e76.ngrok.io/hospitals/')
     .then(response => response.json())
     .then((data) => {
       this.setState({ appointments: data })
@@ -30,10 +30,10 @@ class SHOW_HOSPITAL_APPOINTMENT extends Component {
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">{appointment.user_name}</h5>
-              <h5 className="card-title">{appointment.doctor_name}</h5>
+              <h5 className="card-title">{appointment.first_name + " " + appointment.last_name}</h5>
+              <h5 className="card-title">{appointment.contact}</h5>
               <h5 className="card-title">{appointment.date}</h5>
               <h5 className="card-title">{appointment.time}</h5>
-              {/* show date and time */}
             </div>
           </div>
         ))}

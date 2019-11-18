@@ -4,11 +4,10 @@ import { Link } from 'react-router-dom';
 class HOSPITAL extends Component {
   state = {
     hospitals: [],
-    hospital_name:null,
     image_path:""
   }
   componentDidMount() {
-    fetch('https://31a6d177.ngrok.io/hospitals/')
+    fetch('https://b3013e76.ngrok.io/hospitals/')
     .then(response => response.json())
     .then((data) => {
       this.setState({ hospitals: data })

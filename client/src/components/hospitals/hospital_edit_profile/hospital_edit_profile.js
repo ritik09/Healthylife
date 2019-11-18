@@ -23,7 +23,7 @@ class HOSPITAL_EDIT_PROFILE extends Component {
   }
 
   componentDidMount() {
-    fetch(`https://31a6d177.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
+    fetch(`https://b3013e76.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/`)
     .then(response => response.json())
     .then((data) => {
       this.setState({
@@ -133,7 +133,7 @@ class HOSPITAL_EDIT_PROFILE extends Component {
     }
   };
   postedform = (postform) => {
-    fetch(`https://31a6d177.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/` , {
+    fetch(`https://b3013e76.ngrok.io/quickstart/profile_hospital/${localStorage.getItem('user_name')}/` , {
         method: 'PUT',
         body: JSON.stringify(postform),
         headers: {

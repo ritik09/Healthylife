@@ -6,7 +6,7 @@ class SHOW_USER_APPOINTMENT extends Component {
   }
   componentDidMount() {
       // fetch appointment url
-    fetch('https://f6a8cd9f.ngrok.io/hospitals/')
+    fetch('https://b3013e76.ngrok.io/hospitals/')
     .then(response => response.json())
     .then((data) => {
       this.setState({ appointments: data })

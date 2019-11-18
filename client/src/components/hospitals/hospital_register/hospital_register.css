@@ -1,7 +1,9 @@
 .formwrap{
-    background-color: #258ea6;
-    /* background-image: url('/hospital_background.jpg');  */
+    /* background-color: #258ea6; */
+    background-image: url('/medicines.jpg'); 
     height:100%;
+    background-size: cover;
+    background-position: center;
   }
   .wrapper {
       height: 125vh;
