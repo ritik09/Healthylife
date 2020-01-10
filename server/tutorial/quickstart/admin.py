@@ -1,12 +1,32 @@
 from django.contrib import admin
-
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.utils.translation import ugettext_lazy as _
 # Register your models here.
 from .models import User
 from .models import PhoneOtp,Enquiry,Message,Doctor,Appointment,ReplyEnquiry
-admin.site.register(User)
-admin.site.register(PhoneOtp)
-admin.site.register(Appointment)
-admin.site.register(Enquiry)
-admin.site.register(Message)
-admin.site.register(Doctor)
-admin.site.register(ReplyEnquiry)
+
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    fieldsets = (
+        (None, {'fields': ('email', 'password',)}),
+        (_('Personal info'), {'fields': ('name',)}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                       'groups', 'user_permissions',)}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined',)}),)
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password','password2',),}),)
+
+    list_display = ('email', 'name', 'is_staff',)
+    search_fields = ('email', 'name',)
+    ordering = ('email',)
+
+# admin.site.register(User)
+# admin.site.register(PhoneOtp)
+# admin.site.register(Appointment)
+# admin.site.register(Enquiry)
+# admin.site.register(Message)
+# admin.site.register(Doctor)
+# admin.site.register(ReplyEnquiry)

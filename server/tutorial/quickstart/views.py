@@ -2,16 +2,22 @@ from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 import jwt,json
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from rest_framework.views import APIView
+from rest_framework.decorators import parser_classes
+from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.db.models import Q
+from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework import views
+from parser import *
 from django.contrib.auth.decorators import login_required
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from django.template.loader import render_to_string
@@ -69,13 +75,12 @@ class SignUp(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer1(data = request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
+        # username = serializer.validated_data['username']
+        name = serializer.validated_data['name']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
-        first_name = serializer.validated_data['first_name']
-        last_name = serializer.validated_data['last_name']
         confirm_password = serializer.validated_data['confirm_password']
-        user = User.objects.create_user(username=username,email=email,password=password,first_name=first_name,last_name=last_name,confirm_password=confirm_password)
+        user = User.objects.create_user(name=name,email=email,password=password,confirm_password=confirm_password)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -141,14 +146,14 @@ class resendotp(generics.CreateAPIView):
         data = PhoneOtp.objects.create(otp=otp,receiver= user)
         data.save()
         subject = 'Activate Your Account'
-        message = render_to_string('account_activate.html', {
+        message = render_to_string('quickstart/accountactivate.html', {
             'user': user,
             'OTP': otp,
         })
         from_mail = EMAIL_HOST_USER
         to_mail = [user.email]
         send_mail(subject, message, from_mail, to_mail, fail_silently=False)
-        return Response({'details': user.username +',Please confirm your otp to complete registration.',
+        return Response({'details':user.email +',Please confirm your otp to complete registration.',
                          'user_id': user_id },
                         status=status.HTTP_201_CREATED)
 
@@ -159,14 +164,14 @@ class Sign_Up_Hospital(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer2(data = request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
+        # username = serializer.validated_data['username']
         hospital_name = serializer.validated_data['hospital_name']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        user = User.objects.create_user(username=username,hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
+        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -183,10 +188,31 @@ class Sign_Up_Hospital(APIView):
         return Response({'details': 'Please confirm your otp to complete registration.',
                                'user_id': user.id})
 
+class ObtainToken(APIView):
+    # throttle_classes = ()
+    # permission_classes = ()
+    # parser_classes = (
+    #     parsers.FormParser,
+    #     parsers.MultiPartParser,
+    #     parsers.JSONParser,
+    # )
+
+    # renderer_classes = (renderers.JSONRenderer,)
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        content = {
+            'token': unicode(token.key),
+        }
+
+        return Response(content)
 
 class HospitalViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    
     queryset = User.objects.filter(street_name__isnull=False)
     serializer_class = UserSerializer2
     def get(self,request,*args,**kwargs):

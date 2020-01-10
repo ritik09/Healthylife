@@ -23,7 +23,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile
+from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,ObtainToken
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken
@@ -32,9 +32,6 @@ from django_otp.forms import OTPAuthenticationForm
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'hospitals',views.HospitalViewSet,basename='hospitals')
-# router.register(r'hospitals_signup',views.Sign_Up_Hospital)
-# router.register(r'^hospital_profile/(?P<user_id>[0-9]+)/$', views.HospitalProfile, basename='hospital_profile'),
-# router.register(r'^hospital/(?P<user_id>[0-9]+)/$',views.DoctorView, basename='hospital'),
 default_router = DefaultRouter(trailing_slash=False)
 
 
@@ -42,16 +39,11 @@ default_router = DefaultRouter(trailing_slash=False)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # url(r'^api-token-auth/', views.obtain_auth_token),
     path('quickstart/',include('quickstart.urls')), 
     path('', include(router.urls)),
-    url(r'^login/', obtain_jwt_token),
-    path('login_as_hospital/', obtain_jwt_token),
+    url(r'^login/',ObtainToken.as_view()),
+    path('login_as_hospital/',ObtainToken.as_view()),
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
-    # url(r'^validateotp_hospital/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('',include(default_router.urls)),
-    # url(r'^log/$',views.Login.as_view()),
-    # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

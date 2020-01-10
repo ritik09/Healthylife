@@ -7,6 +7,7 @@ from rest_framework.validators import UniqueValidator
 from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
+from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -61,24 +62,23 @@ class Base64ImageField(serializers.ImageField):
         return extension
 
 class UserSerializer1(serializers.ModelSerializer):
-    username=serializers.CharField(
-        required=True,
-        allow_blank=False,
-        style={'placeholder':'Username'},
-        validators=[UniqueValidator(queryset=User.objects.all(),
-        message='Username already in use',
-        lookup='exact')]
+    # username=serializers.CharField(
+    #     required=True,
+    #     allow_blank=False,
+    #     style={'placeholder':'Username'},
+    #     validators=[UniqueValidator(queryset=User.objects.all(),
+    #     message='Username already in use',
+    #     lookup='exact')]
 
-    )
-
-    first_name=serializers.CharField(
+    # )
+    name=serializers.CharField(
         required=True,
-        style={'placeholder':'first Name'}
+        style={'placeholder':'Name'}
     )
-    last_name=serializers.CharField(
-        required=True,
-        style={'placeholder':'Last Name'}
-    )
+    # last_name=serializers.CharField(
+    #     required=True,
+    #     style={'placeholder':'Last Name'}
+    # )
     email=serializers.EmailField(
         required=True,
         allow_null=False,
@@ -100,7 +100,7 @@ class UserSerializer1(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['url','id','username','first_name','last_name','email','password','confirm_password']
+        fields=['url','id','name','email','password','confirm_password']
 
     def validate(self, data):
         password = data.get('password')
@@ -155,10 +155,11 @@ class UserSerializer2(serializers.ModelSerializer):
         else:
             return data
 
-class LoginSerializer(serializers.ModelSerializer):
+
+class LoginSerializer(RestAuthLoginSerializer):
     class Meta:
-        model = User
-        fields =('username','password')
+        model=User
+        fields=['email','password']
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -176,7 +177,7 @@ class DoctorSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields=('username','contact','first_name','last_name','hospital_name')
+        fields=('contact','first_name','last_name','hospital_name')
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -197,12 +198,12 @@ class PhoneOtpSerializer(serializers.ModelSerializer):
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enquiry
-        fields = ['username','Query','contact','hospital_name','id']
+        fields = ['Query','contact','hospital_name','id']
 
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReplyEnquiry
-        fields = ['enquiry','reply','username','id','hospital_name']
+        fields = ['enquiry','reply','id','hospital_name']
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -212,14 +213,14 @@ class MessageSerializer(serializers.ModelSerializer):
 class UserProfileChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=['username','first_name','last_name','email','password','confirm_password']
+        fields=['first_name','last_name','email','password','confirm_password']
 
     validate_password = make_password
 
 class HospitalProfileChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=['username','hospital_name','email','password','confirm_password','street_name','image']
+        fields=['hospital_name','email','password','confirm_password','street_name','image']
 
     validate_password = make_password
 

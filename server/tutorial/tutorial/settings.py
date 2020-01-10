@@ -34,7 +34,12 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'channels',
     'corsheaders',
+    'django.contrib.sites',
     'rest_framework',
+    'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
     'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,10 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'quickstart',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_hotp',
-    'django_otp.plugins.otp_static',
 ]
 
 MIDDLEWARE = [
@@ -63,13 +64,11 @@ MIDDLEWARE = [
 
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
+    'http://localhost:4200',
 ]
 CORS_ORIGIN_REGEX_WHITELIST = [
-    'http://localhost:3000',
+    'http://localhost:4200',
 ]
-
-
 
 ROOT_URLCONF = 'tutorial.urls'
 
@@ -192,6 +191,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}
+REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser'
@@ -216,6 +220,12 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
     )
 }
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+}
 
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
@@ -223,6 +233,23 @@ JWT_AUTH = {
 }
 AUTH_USER_MODEL = 'quickstart.User'
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# ACCOUNT_EMAIL_REQUIRED = True
+# AUTHENTICATION_METHOD = 'EMAIL'
+# ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True   
+ACCOUNT_USERNAME_REQUIRED = False
+
+#Following is added to enable registration with email instead of username
+AUTHENTICATION_BACKENDS = (
+ # Needed to login by username in Django admin, regardless of `allauth`
+ "django.contrib.auth.backends.ModelBackend",
+
+ # `allauth` specific authentication methods, such as login by e-mail
+ "allauth.account.auth_backends.AuthenticationBackend",
+)
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = '09ritikgupta@gmail.com'
@@ -255,3 +282,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
