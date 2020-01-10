@@ -157,8 +157,8 @@ class UserSerializer2(serializers.ModelSerializer):
 
 
 class LoginSerializer(RestAuthLoginSerializer):
+    username=None
     class Meta:
-        model=User
         fields=['email','password']
 
 class DoctorSerializer(serializers.ModelSerializer):

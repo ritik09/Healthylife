@@ -70,6 +70,8 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:4200',
 ]
 
+SITE_ID = 1
+
 ROOT_URLCONF = 'tutorial.urls'
 
 TEMPLATES = [
