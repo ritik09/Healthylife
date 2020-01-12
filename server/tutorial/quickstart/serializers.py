@@ -4,11 +4,13 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
-from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry,Specialization
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
 from django.contrib.auth.hashers import make_password
+from multiselectfield import MultiSelectField
+from multiselectfield import MultiSelectField
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -112,16 +114,21 @@ class UserSerializer1(serializers.ModelSerializer):
         else:
             return data
 
-class UserSerializer2(serializers.ModelSerializer):
-    username=serializers.CharField(
-        required=True,
-        allow_blank=False,
-        style={'placeholder':'Username'},
-        validators=[UniqueValidator(queryset=User.objects.all(),
-        message='Username already in use',
-        lookup='exact')]
+class SpecializationSerializer(serializers.RelatedField):
+    class Meta:
+        model=Specialization
+        fields='__all__'
 
-    )
+class UserSerializer2(serializers.ModelSerializer):
+    # username=serializers.CharField(
+    #     required=True,
+    #     allow_blank=False,
+    #     style={'placeholder':'Username'},
+    #     validators=[UniqueValidator(queryset=User.objects.all(),
+    #     message='Username already in use',
+    #     lookup='exact')]
+
+    # )
     hospital_name=serializers.CharField(
         required=True,
         style={'placeholder':'Hospital_name'}
@@ -133,17 +140,16 @@ class UserSerializer2(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all(),
         message ='Email already in use',
         lookup='exact')]
-        
     )
     password = serializers.CharField(style={'input_type': 'password'},required=True,
                                      allow_blank=False,allow_null=False)
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
     image = Base64ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
-
+    specialization = SpecializationSerializer(read_only=True, many=True)
     class Meta:
         model=User
-        fields=['username','hospital_name','email','password','confirm_password','street_name','image','id']
+        fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','id']
 
     def validate(self, data):
         password = data.get('password')

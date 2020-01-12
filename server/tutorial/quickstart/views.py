@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
@@ -49,10 +50,12 @@ from django.contrib.auth import authenticate, login
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 import random
+from .authentication import token_expire_handler, expires_in
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset=User.objects.filter(street_name__isnull=True)
     serializer_class = UserSerializer2
 
@@ -82,7 +85,7 @@ class SignUp(APIView):
         confirm_password = serializer.validated_data['confirm_password']
         user = User.objects.create_user(name=name,email=email,password=password,confirm_password=confirm_password)
         otp = randint(999,9999)
-        data = PhoneOtp.objects.create(otp=otp,receiver=user)
+        data = PhoneOtp.objects.create(otp=otp,user=user)
         data.save()
         user.is_active = False
         user.save()
@@ -106,14 +109,14 @@ class validateotp(APIView):
         otp_verify.is_valid(raise_exception=True)
         otp_verify = otp_verify.validated_data['otp'] 
         try:
-            otp = PhoneOtp.objects.get(receiver=user_id)
+            otp = PhoneOtp.objects.get(user=user_id)
         except(TypeError, ValueError, OverflowError, PhoneOtp.DoesNotExist):
                 otp = None
         try:
-            receiver = User.objects.get(id=user_id)
+            user = User.objects.get(id=user_id)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-            receiver = None
-        if otp is None or receiver is None:
+            user = None
+        if otp is None or user is None:
             return Response({'error':'you are not a valid user'},status=status.HTTP_400_BAD_REQUEST)
 
         elif timezone.now() - otp.sent_on >= timedelta(days=0,hours=0,minutes=2,seconds=0):
@@ -121,11 +124,15 @@ class validateotp(APIView):
             return Response({'detail':'OTP expired!',
                                  'user_id':user_id})
         if otp.otp == otp_verify:
-            receiver.is_active = True
-            receiver.save()
+            user.is_active = True
+            user.save()
             otp.delete()
-            return Response({'message': 'Thank you for otp Verification you are successfully logged in'},
-                            status=status.HTTP_200_OK)
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
         else: 
             return Response({'error':'Invalid OTP',})
 
@@ -139,11 +146,11 @@ class resendotp(generics.CreateAPIView):
             user = None
         if user is None:
             return Response({'error':'Not a valid user!'})
-        otp = PhoneOtp.objects.filter(receiver=user)
+        otp = PhoneOtp.objects.filter(user=user)
         if otp:
             otp.delete()
         otp = randint(999, 9999)
-        data = PhoneOtp.objects.create(otp=otp,receiver= user)
+        data = PhoneOtp.objects.create(otp=otp,user= user)
         data.save()
         subject = 'Activate Your Account'
         message = render_to_string('quickstart/accountactivate.html', {
@@ -171,7 +178,8 @@ class Sign_Up_Hospital(APIView):
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
+        specialization = serializer.validated_data['specialization']
+        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name,specialization=specialization)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -189,15 +197,6 @@ class Sign_Up_Hospital(APIView):
                                'user_id': user.id})
 
 class ObtainToken(APIView):
-    # throttle_classes = ()
-    # permission_classes = ()
-    # parser_classes = (
-    #     parsers.FormParser,
-    #     parsers.MultiPartParser,
-    #     parsers.JSONParser,
-    # )
-
-    # renderer_classes = (renderers.JSONRenderer,)
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -206,11 +205,16 @@ class ObtainToken(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+        is_expired, token = token_expire_handler(token) 
         return Response({
             'token': token.key,
             'user_id': user.pk,
             'email': user.email
-        })
+        }) 
+        return Response({
+        'expires_in': expires_in(token),
+        'token': token.key
+    })
 
 class HospitalViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)

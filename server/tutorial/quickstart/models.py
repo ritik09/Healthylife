@@ -5,6 +5,7 @@ import uuid
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 from django.utils import timezone
+from multiselectfield import MultiSelectField
 from django.utils.encoding import python_2_unicode_compatible
 
 def nameFile(instance, filename):
@@ -42,6 +43,17 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
         return self._create_user(email, password, **extra_fields)
 
+class Specialization(models.Model):
+    HeartDisease=models.CharField(max_length=100,null=True)
+    Cancer=models.CharField(max_length=100,null=True)
+    Unintentional_injuries=models.CharField(max_length=100,null=True)
+    Chronic_lower_respiratory =models.CharField(max_length=100,null=True)
+    Stroke_cerebrovascular=models.CharField(max_length=100,null=True)
+    Alzheimer=models.CharField(max_length=100,null=True)
+    Diabetes=models.CharField(max_length=100,null=True)
+    Influenza=models.CharField(max_length=100,null=True)
+    Kidney=models.CharField(max_length=100,null=True)
+    Suicide=models.CharField(max_length=100,null=True)
 
 class User(AbstractUser):
     username = None
@@ -55,6 +67,17 @@ class User(AbstractUser):
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
     image =models.ImageField(upload_to='pics',null='True')
     street_name = models.CharField(max_length=100,null=True)
+    # Choices = ((1, ' HeartDisease'),
+    #            (2, 'Cancer'),
+    #            (3, 'Unintentional_injuries'),
+    #            (4, 'Chronic_lower_respiratory'),
+    #            (5, 'Stroke_cerebrovascular'),
+    #            (6, 'Alzheimer'),
+    #            (7, 'Diabetes'),
+    #            (8, 'Influenza'),
+    #            (9, 'Kidney'),
+    #            (10, 'Suicide'))
+    specialization = models.ManyToManyField(Specialization,related_name="specialist", blank=True)
     objects = UserManager()
 
 class Meta:
@@ -66,7 +89,7 @@ class Meta:
     #     return self.username
 
 class PhoneOtp(models.Model):
-    receiver = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
     otp = models.IntegerField(null=False,blank=False)
     sent_on= models.DateTimeField(auto_now_add=True,null=True)
 
