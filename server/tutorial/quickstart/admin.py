@@ -9,7 +9,7 @@ from .models import PhoneOtp,Enquiry,Message,Doctor,Appointment,ReplyEnquiry,Spe
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password',)}),
-        (_('Personal info'), {'fields': ('name',)}),
+        (_('Personal info'), {'fields': ('name','hospital_name','image','street_name','specialization',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions',)}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined',)}),)
@@ -24,7 +24,7 @@ class UserAdmin(DjangoUserAdmin):
     ordering = ('email',)
 
 admin.site.register(Specialization)
-# admin.site.register(PhoneOtp)
+# admin.site.register(User)
 # admin.site.register(Appointment)
 # admin.site.register(Enquiry)
 # admin.site.register(Message)

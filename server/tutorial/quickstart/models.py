@@ -60,16 +60,6 @@ class User(AbstractUser):
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
     image =models.ImageField(upload_to='pics',null='True')
     street_name = models.CharField(max_length=100,null=True)
-    # Choices = ((1, ' HeartDisease'),
-    #            (2, 'Cancer'),
-    #            (3, 'Unintentional_injuries'),
-    #            (4, 'Chronic_lower_respiratory'),
-    #            (5, 'Stroke_cerebrovascular'),
-    #            (6, 'Alzheimer'),
-    #            (7, 'Diabetes'),
-    #            (8, 'Influenza'),
-    #            (9, 'Kidney'),
-    #            (10, 'Suicide'))
     specialization = models.ManyToManyField(Specialization,related_name="specialist")
     objects = UserManager()
 

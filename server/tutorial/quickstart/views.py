@@ -171,21 +171,22 @@ class Sign_Up_Hospital(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer2(data = request.data)
         serializer.is_valid(raise_exception=True)
-        # username = serializer.validated_data['username']
+        
         hospital_name = serializer.validated_data['hospital_name']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        try:
-            specializationlist=Specialization.objects.get(type=type)
-        except Specialization.DoesNotExist:
-            specializationlist==Specialization.objects.create(type=type)
-        specializationlist.specialization.add(type)  
-        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name,specialization=specialization)
+        specialization = serializer.validated_data['specialization']
+        print(specialization)
+        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
+        user.specialization.set(specialization)
+        print(user.specialization)
+        # if serializer.is_valid():
+        #     user=User.objects.create_user(**serializer.validated_data)
         otp = randint(999,9999)
-        data = PhoneOtp.objects.create(otp=otp,receiver=user)
+        data = PhoneOtp.objects.create(otp=otp,user=user)
         data.save()
         user.is_active = False
         user.save()
@@ -485,66 +486,12 @@ class DeleteDoctors(APIView):
         doctor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
-class Cardiologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Cardiologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class Category(APIView):
+    def get(self, request,type_id, *args,**kwargs):
+        hospital = Specialization.objects.filter(type=type_id)
+        serializer =UserSerializer2(hospital,many=True)
+        return Response(serializer.data)
+       
 
-class Endocrinologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Endocrinologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class Dermatalogist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Dermatalogist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Immunologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Immunologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Neurologist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Neurologist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Pathologist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Pathologist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Psychiatrists(APIView):
-    def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Psychiatrists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

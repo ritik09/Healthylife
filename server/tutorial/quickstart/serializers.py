@@ -146,7 +146,8 @@ class UserSerializer2(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
     image = Base64ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
-    specialization = SpecializationSerializer(many=True,queryset=Specialization.objects.all())
+    # specialization = SpecializationSerializer(many=True,queryset=Specialization.objects.all())
+
     class Meta:
         model=User
         fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','id']
@@ -160,6 +161,13 @@ class UserSerializer2(serializers.ModelSerializer):
             raise ValidationError("password of minimum 6 digit is required")
         else:
             return data
+
+    # def create(self, validated_data):
+    #     user = super(UserSerializer2, self).create(validated_data)
+    #     user.set_password(validated_data['password'])
+    #     user.save()
+    #     return user
+  
 
 
 class LoginSerializer(RestAuthLoginSerializer):

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,DoctorView,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
+from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,DoctorView,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView,Category
 from django.conf.urls import url
 from . import views
 app_name = 'quickstart'
@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^hospital_name/(?P<user_id>[0-9]+)/$', Hospital_Name.as_view()),
     url(r'^delete/(?P<pk>\d+)',DeleteDoctors.as_view(), name='delete'),
     url(r'^delete_enquiry/(?P<pk>\d+)',DeleteEnquiry.as_view(), name='delete'),
+    url(r'^category/(?P<type_id>[0-9]+)/$',Category.as_view(), name='category'),
     path('<str:room_name>/', views.room, name='room')
 ]
