@@ -44,16 +44,9 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 class Specialization(models.Model):
-    HeartDisease=models.CharField(max_length=100,null=True)
-    Cancer=models.CharField(max_length=100,null=True)
-    Unintentional_injuries=models.CharField(max_length=100,null=True)
-    Chronic_lower_respiratory =models.CharField(max_length=100,null=True)
-    Stroke_cerebrovascular=models.CharField(max_length=100,null=True)
-    Alzheimer=models.CharField(max_length=100,null=True)
-    Diabetes=models.CharField(max_length=100,null=True)
-    Influenza=models.CharField(max_length=100,null=True)
-    Kidney=models.CharField(max_length=100,null=True)
-    Suicide=models.CharField(max_length=100,null=True)
+    type=models.CharField(max_length=100,null=True)
+    def __str__(self):
+        return self.type
 
 class User(AbstractUser):
     username = None
@@ -77,7 +70,7 @@ class User(AbstractUser):
     #            (8, 'Influenza'),
     #            (9, 'Kidney'),
     #            (10, 'Suicide'))
-    specialization = models.ManyToManyField(Specialization,related_name="specialist", blank=True)
+    specialization = models.ManyToManyField(Specialization,related_name="specialist")
     objects = UserManager()
 
 class Meta:

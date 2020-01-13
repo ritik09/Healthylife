@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
 # Register your models here.
 from .models import User
-from .models import PhoneOtp,Enquiry,Message,Doctor,Appointment,ReplyEnquiry
+from .models import PhoneOtp,Enquiry,Message,Doctor,Appointment,ReplyEnquiry,Specialization
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
@@ -23,7 +23,7 @@ class UserAdmin(DjangoUserAdmin):
     search_fields = ('email', 'name',)
     ordering = ('email',)
 
-# admin.site.register(User)
+admin.site.register(Specialization)
 # admin.site.register(PhoneOtp)
 # admin.site.register(Appointment)
 # admin.site.register(Enquiry)

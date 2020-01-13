@@ -23,7 +23,7 @@ from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_MET
 from rest_framework.response import Response
 from django.template.loader import render_to_string
 from rest_framework import generics,viewsets,mixins
-from .models import User,PhoneOtp,Doctor
+from .models import User,PhoneOtp,Doctor,Specialization
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
@@ -178,7 +178,11 @@ class Sign_Up_Hospital(APIView):
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        specialization = serializer.validated_data['specialization']
+        try:
+            specializationlist=Specialization.objects.get(type=type)
+        except Specialization.DoesNotExist:
+            specializationlist==Specialization.objects.create(type=type)
+        specializationlist.specialization.add(type)  
         user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name,specialization=specialization)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)

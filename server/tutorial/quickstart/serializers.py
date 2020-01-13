@@ -114,7 +114,7 @@ class UserSerializer1(serializers.ModelSerializer):
         else:
             return data
 
-class SpecializationSerializer(serializers.ModelSerializer):
+class SpecializationSerializer(serializers.PrimaryKeyRelatedField,serializers.ModelSerializer):
     class Meta:
         model=Specialization
         fields='__all__'
@@ -146,7 +146,7 @@ class UserSerializer2(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
     image = Base64ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
-    specialization = SpecializationSerializer(many=True,read_only=True)
+    specialization = SpecializationSerializer(many=True,queryset=Specialization.objects.all())
     class Meta:
         model=User
         fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','id']
