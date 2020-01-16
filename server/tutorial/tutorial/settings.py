@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import datetime
+from datetime import timedelta
+
+from django.conf import settings
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -213,17 +217,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'users.authentication.ExpiringTokenAuthentication',  # custom authentication class
     ),
-     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-
+    #  'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework.authentication.TokenAuthentication',
     # ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+
     ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework.authentication.SessionAuthentication',
+    #     'rest_framework.authentication.BasicAuthentication',
+    # ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.JSONParser',
@@ -237,13 +241,13 @@ REST_FRAMEWORK = {
     ]
 }
 
-JWT_AUTH = {
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'quickstart.utils.jwt_response_payload_handler', 
-}
+# JWT_AUTH = {
+#     'JWT_RESPONSE_PAYLOAD_HANDLER':
+#     'quickstart.utils.jwt_response_payload_handler', 
+# }
 AUTH_USER_MODEL = 'quickstart.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True   
@@ -278,3 +282,22 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+# class TokenSettings(object):
+    
+#     """Provides settings as defaults for working with tokens."""
+
+#     @property
+#     def EXPIRING_TOKEN_LIFESPAN(self):
+#         """
+#         Return the allowed lifespan of a token as a TimeDelta object.
+#         Defaults to 30 days.
+#         """
+#         try:
+#             val = settings.EXPIRING_TOKEN_LIFESPAN
+#         except AttributeError:
+#             val = timedelta(days=30)
+
+#         return val
+
+# token_settings = TokenSettings()

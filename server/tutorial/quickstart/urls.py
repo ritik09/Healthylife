@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,DoctorView,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView,Category
+from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,ObtainToken,DoctorView,category,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
 from django.conf.urls import url
 from . import views
 app_name = 'quickstart'
@@ -7,6 +7,9 @@ app_name = 'quickstart'
 urlpatterns = [
     path('signup_as_user/', SignUp.as_view()),
     path('signup_as_hospital/', Sign_Up_Hospital.as_view()),
+    url(r'^login/',ObtainToken.as_view()),
+    path('login_as_hospital/',ObtainToken.as_view()),
+    # url(r'^specialization/',Special.as_view(),name='specialization'),
     # path('hospitals/', Hospital.as_view()),
     path('make_appointment/', Make_Appointment.as_view()),
     url(r'^appointment_view/(?P<user_id>[0-9]+)/(?P<status>[A-za-z]+)/$', AppointmentProfileView.as_view()),
@@ -18,7 +21,7 @@ urlpatterns = [
     # url(r'^Patient_AppointmentView/(?P<user_id>[0-9]+)/$', EnquiryView.as_view()),
     url(r'^hospital_profile/',HospitalProfile.as_view(), name='hospital_profile'),
     url(r'^hospital_doctor/(?P<user_id>[0-9]+)/$',HospitalDoctor.as_view(), name='hospital_profile'),
-    url(r'^hospital/',DoctorView.as_view(),name='hospital'),
+    url(r'^add_doctor/',DoctorView.as_view(),name='add_doctor'),
     path('message/', MessageView.as_view()),
     url(r'^resendotp/(?P<user_id>[0-9]+)/$',resendotp.as_view(), name='resend-otp'),
     path('', views.index, name='index'),
@@ -31,6 +34,6 @@ urlpatterns = [
     url(r'^hospital_name/(?P<user_id>[0-9]+)/$', Hospital_Name.as_view()),
     url(r'^delete/(?P<pk>\d+)',DeleteDoctors.as_view(), name='delete'),
     url(r'^delete_enquiry/(?P<pk>\d+)',DeleteEnquiry.as_view(), name='delete'),
-    url(r'^category/(?P<type_id>[0-9]+)/$',Category.as_view(), name='category'),
+    url(r'^category/(?P<type_id>[0-9]+)/$',category.as_view(), name='category'),
     path('<str:room_name>/', views.room, name='room')
 ]

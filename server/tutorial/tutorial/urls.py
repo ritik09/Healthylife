@@ -23,15 +23,17 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,ObtainToken
+from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,SpecializationViewSet,CityViewSet
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken
 # from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'hospitals',views.HospitalViewSet,basename='hospitals')
+router.register(r'users', views.UserViewSet),
+router.register(r'hospitals',views.HospitalViewSet,basename='hospitals'),
+router.register(r'specialization',views.SpecializationViewSet,basename='specialization'),
+router.register(r'city',views.CityViewSet,basename='city'),
 default_router = DefaultRouter(trailing_slash=False)
 
 
@@ -39,10 +41,8 @@ default_router = DefaultRouter(trailing_slash=False)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('quickstart/',include('quickstart.urls')), 
     path('', include(router.urls)),
-    url(r'^login/',ObtainToken.as_view()),
-    path('login_as_hospital/',ObtainToken.as_view()),
+    path('quickstart/',include('quickstart.urls')), 
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('',include(default_router.urls)),

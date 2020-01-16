@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
-from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry,Specialization
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry,Specialization,City
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
@@ -114,10 +114,16 @@ class UserSerializer1(serializers.ModelSerializer):
         else:
             return data
 
-class SpecializationSerializer(serializers.PrimaryKeyRelatedField,serializers.ModelSerializer):
+class SpecializationSerializer(serializers.ModelSerializer):
     class Meta:
         model=Specialization
         fields='__all__'
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=City
+        fields='__all__'
+
 
 class UserSerializer2(serializers.ModelSerializer):
     # username=serializers.CharField(
@@ -127,7 +133,6 @@ class UserSerializer2(serializers.ModelSerializer):
     #     validators=[UniqueValidator(queryset=User.objects.all(),
     #     message='Username already in use',
     #     lookup='exact')]
-
     # )
     hospital_name=serializers.CharField(
         required=True,
@@ -146,11 +151,14 @@ class UserSerializer2(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
     image = Base64ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
-    # specialization = SpecializationSerializer(many=True,queryset=Specialization.objects.all())
+    contact=serializers.CharField(max_length=100)
+    specialization = serializers.SlugRelatedField(many=True,
+        queryset=Specialization.objects.all(),
+        slug_field='type')
 
     class Meta:
         model=User
-        fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','id']
+        fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','city','contact','id']
 
     def validate(self, data):
         password = data.get('password')
@@ -178,7 +186,7 @@ class LoginSerializer(RestAuthLoginSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image')
+        fields=('name','email','Specialization','Description','Contact','hospital','id','image')
 
     def validate_contact(self,contact):
         if len(contact)>10:

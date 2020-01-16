@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 from django.utils import timezone
 from multiselectfield import MultiSelectField
+
 from django.utils.encoding import python_2_unicode_compatible
 
 def nameFile(instance, filename):
@@ -48,6 +49,12 @@ class Specialization(models.Model):
     def __str__(self):
         return self.type
 
+class City(models.Model):
+    location=models.CharField(max_length=100)
+    def __str__(self):
+        return self.location
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
@@ -60,6 +67,8 @@ class User(AbstractUser):
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
     image =models.ImageField(upload_to='pics',null='True')
     street_name = models.CharField(max_length=100,null=True)
+    city = models.ForeignKey(City,on_delete=models.CASCADE,null=True)
+    contact=models.CharField(max_length=100)
     specialization = models.ManyToManyField(Specialization,related_name="specialist")
     objects = UserManager()
 
@@ -72,15 +81,19 @@ class Meta:
     #     return self.username
 
 class PhoneOtp(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,null =True)
     otp = models.IntegerField(null=False,blank=False)
     sent_on= models.DateTimeField(auto_now_add=True,null=True)
 
+class Category(models.Model):
+    category=models.CharField(max_length=100)
+    def __str__(self):
+        return self.category
+
 class Doctor(models.Model):
-    first_name = models.CharField(max_length=100,null=True)
-    last_name = models.CharField(max_length=100,null=True)
-    Qualification = models.CharField(max_length=100)
-    Years_of_Experience = models.IntegerField()
+    name = models.CharField(max_length=100,null=True)
+    email=models.CharField(max_length=100,null=True)
+    Description = models.CharField(max_length=500,null=True)
     # category=[
     #     ('Cardio','Cardiologists'),
     #     ('Derma','Dermatalogist'),
@@ -90,7 +103,7 @@ class Doctor(models.Model):
     #     ('Path','Pathologist'),
     #     ('Psych','Psychiatrists')
     # ]
-    Specialization = models.CharField(max_length=100,)
+    Specialization = models.ForeignKey(Category,on_delete=models.CASCADE,null=True)
     Contact = models.IntegerField()
     image = models.ImageField(upload_to='pics',null='True')
     hospital = models.ForeignKey(User,on_delete=models.CASCADE,null=True)

@@ -27,12 +27,13 @@ from .models import User,PhoneOtp,Doctor,Specialization
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,SpecializationSerializer,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from django.utils import timezone
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, mixins
+from rest_framework.decorators import api_view, permission_classes
 from datetime import timedelta
 from .models import Message
 from rest_framework.response import Response
@@ -41,11 +42,12 @@ from rest_framework import filters
 from rest_framework import status,permissions
 from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer
+from rest_framework.permissions import AllowAny
+from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer,SpecializationSerializer,LocationSerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from random import *
-from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry
+from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry,Specialization,City
 from django.contrib.auth import authenticate, login
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -53,6 +55,7 @@ import random
 from .authentication import token_expire_handler, expires_in
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -132,7 +135,7 @@ class validateotp(APIView):
             'token': token.key,
             'user_id': user.pk,
             'email': user.email
-        })
+        }) 
         else: 
             return Response({'error':'Invalid OTP',})
 
@@ -171,7 +174,6 @@ class Sign_Up_Hospital(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer2(data = request.data)
         serializer.is_valid(raise_exception=True)
-        
         hospital_name = serializer.validated_data['hospital_name']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
@@ -182,7 +184,6 @@ class Sign_Up_Hospital(APIView):
         print(specialization)
         user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
         user.specialization.set(specialization)
-        print(user.specialization)
         # if serializer.is_valid():
         #     user=User.objects.create_user(**serializer.validated_data)
         otp = randint(999,9999)
@@ -214,12 +215,9 @@ class ObtainToken(APIView):
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            'email': user.email
+            'email': user.email,
+            'expires_in': expires_in(token)
         }) 
-        return Response({
-        'expires_in': expires_in(token),
-        'token': token.key
-    })
 
 class HospitalViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -267,7 +265,7 @@ class HospitalDoctor(APIView):
     serializer_class= DoctorSerializer
     def get(self,request,user_id,*args,**kwargs):
         user = User.objects.get(id=user_id)
-        doctor = Doctor.objects.filter(hospital__username=user)
+        doctor = Doctor.objects.filter(hospital__email=user)
         serializer = DoctorSerializer(data=doctor, many=True)
         serializer.is_valid()
         return Response(serializer.data)
@@ -486,10 +484,29 @@ class DeleteDoctors(APIView):
         doctor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
-class Category(APIView):
-    def get(self, request,type_id, *args,**kwargs):
-        hospital = Specialization.objects.filter(type=type_id)
-        serializer =UserSerializer2(hospital,many=True)
+class SpecializationViewSet(viewsets.ModelViewSet):
+    queryset=Specialization.objects.all()
+    serializer_class=SpecializationSerializer
+    def get(self,request,*args,**kwargs):
+        specialization = Specialization.objects.all()
+        serializer = SpecializationSerializer(specialization,many=True)
+        return Response(serializer.data)
+
+class CityViewSet(viewsets.ModelViewSet):
+    queryset=City.objects.all()
+    serializer_class=LocationSerializer
+    def get(self,request,*args,**kwargs):
+        city = City.objects.all()
+        serializer = SpecializationSerializer(city,many=True)
+        return Response(serializer.data)
+
+class category(APIView):
+    # queryset=Specialization.objects.all()
+    serializer_class=UserSerializer2
+    def get(self,request,type_id,*args,**kwargs):
+        specialization = User.objects.filter(specialization=type_id)
+        print(specialization)
+        serializer = UserSerializer2(specialization,many=True)
         return Response(serializer.data)
        
 
