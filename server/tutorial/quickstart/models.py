@@ -44,8 +44,10 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
         return self._create_user(email, password, **extra_fields)
 
+
 class Specialization(models.Model):
     type=models.CharField(max_length=100,null=True)
+    # objects = PersonManager()
     def __str__(self):
         return self.type
 
@@ -70,8 +72,10 @@ class User(AbstractUser):
     city = models.ForeignKey(City,on_delete=models.CASCADE,null=True)
     contact=models.CharField(max_length=100)
     specialization = models.ManyToManyField(Specialization,related_name="specialist")
+    
     objects = UserManager()
-
+    
+    
 class Meta:
     verbose_name =('user')
     verbose_name_plural = ('users')
@@ -111,11 +115,12 @@ class Doctor(models.Model):
 class Rating(models.Model):
     user = models.ForeignKey(Doctor,on_delete=models.CASCADE)
     star = models.IntegerField()
-    
 
 class Enquiry(models.Model):
     # username = models.CharField(max_length=100)
-    contact=models.CharField(max_length=10,null=True)
+    contact = models.CharField(max_length=15,null=True)
+    name = models.CharField(max_length=100,null=True)
+    age =models.CharField(max_length=100,null=True)
     Query = models.TextField(max_length=300)
     hospital_name = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
@@ -131,8 +136,6 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     reciever = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
-    # def __str__(self):
-    #     return self.author.username
 
     def last_30_messages(self):
         return Message.objects.order_by('-timestamp').all()[:30]
@@ -140,8 +143,20 @@ class Message(models.Model):
 class Appointment(models.Model):
     # username = models.CharField(max_length=100)
     contact = models.CharField(max_length=15)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100,null=True)
+    name = models.CharField(max_length=100,null=True)
+    email = models.CharField(max_length=100,null=True)
+    age =models.CharField(max_length=100,null=True)
+    description = models.CharField(max_length=500,null=True)
+    doctor_name = models.CharField(max_length=100,null=True)
+    hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Appointment_Hospital(models.Model):
+    # username = models.CharField(max_length=100)
+    contact = models.CharField(max_length=15)
+    name = models.CharField(max_length=100,null=True)
+    email = models.CharField(max_length=100,null=True)
+    age =models.CharField(max_length=100,null=True)
+    description = models.CharField(max_length=500,null=True)
     hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
 
 class AppointmentType(models.Model):

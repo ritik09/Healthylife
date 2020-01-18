@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,ObtainToken,DoctorView,category,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
+from .views import SignUp,validateotp,resendotp,MessageView,Sign_Up_Hospital,ObtainToken,Make_HAppointment,HAppointmentView,DoctorView,category,ReplyEnquiryView,HospitalProfile,DeleteEnquiry,Hospital_Name,doctor,DeleteDoctors,HospitalViewSet,HospitalDoctor,AppointmentView,Hospital_Profile,HospitalRating,Make_Appointment, AppointmentProfileView,Make_Enquiry,EnquiryView,Patient_EnquiryView,UserProfileChangeAPIView,UserProfileChangeHospitalAPIView
 from django.conf.urls import url
 from . import views
 app_name = 'quickstart'
@@ -11,9 +11,11 @@ urlpatterns = [
     path('login_as_hospital/',ObtainToken.as_view()),
     # url(r'^specialization/',Special.as_view(),name='specialization'),
     # path('hospitals/', Hospital.as_view()),
-    path('make_appointment/', Make_Appointment.as_view()),
+    url(r'^make_appointment/', Make_Appointment.as_view(),name='make_appointment'),
+    url(r'^make_happointment/', Make_HAppointment.as_view(),name='make_happointment'),
     url(r'^appointment_view/(?P<user_id>[0-9]+)/(?P<status>[A-za-z]+)/$', AppointmentProfileView.as_view()),
     url(r'^appointment/(?P<user_id>[0-9]+)/$', AppointmentView.as_view()),
+    url(r'^happointment/(?P<user_id>[0-9]+)/$', HAppointmentView.as_view()),
     url('make_enquiry/', Make_Enquiry.as_view()),
     url('EnquiryView/', EnquiryView.as_view()),
     url(r'^reply_enquiry/(?P<id>[0-9]+)/$', ReplyEnquiryView.as_view()),

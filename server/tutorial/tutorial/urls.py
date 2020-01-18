@@ -23,7 +23,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,SpecializationViewSet,CityViewSet
+from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,SpecializationViewSet,SpecialityViewSet,CityViewSet
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken
@@ -33,6 +33,7 @@ router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet),
 router.register(r'hospitals',views.HospitalViewSet,basename='hospitals'),
 router.register(r'specialization',views.SpecializationViewSet,basename='specialization'),
+router.register(r'speciality',views.SpecialityViewSet,basename='speciality'),
 router.register(r'city',views.CityViewSet,basename='city'),
 default_router = DefaultRouter(trailing_slash=False)
 

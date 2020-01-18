@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 import jwt,json
+from rest_framework import serializers
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
@@ -24,16 +25,18 @@ from rest_framework.response import Response
 from django.template.loader import render_to_string
 from rest_framework import generics,viewsets,mixins
 from .models import User,PhoneOtp,Doctor,Specialization
+from django.core import serializers
+from django.core.serializers import serialize
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,SpecializationSerializer,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
-from rest_framework.permissions import IsAuthenticated
+from quickstart.serializers import UserSerializer1,MessageSerializer,AppointmentHospitalSerializer,LoginSerializer,UserSerializer2,SpecializationSerializer,doctorSerializer,AppointmentSerializer,SpecialitySerializer,SpecialitySerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
+# from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from django.utils import timezone
 from rest_framework import generics, mixins
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from datetime import timedelta
 from .models import Message
 from rest_framework.response import Response
@@ -43,11 +46,11 @@ from rest_framework import status,permissions
 from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer,SpecializationSerializer,LocationSerializer
+from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer,SpecializationSerializer,LocationSerializer,SpecialitySerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from random import *
-from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry,Specialization,City
+from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry,Specialization,City,Category
 from django.contrib.auth import authenticate, login
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -174,15 +177,23 @@ class Sign_Up_Hospital(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer2(data = request.data)
         serializer.is_valid(raise_exception=True)
+        
+        # specialization=serializers.serialize('json', use_natural_foreign_keys=True, use_natural_primary_keys=True)
         hospital_name = serializer.validated_data['hospital_name']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
+        contact=serializer.validated_data['contact']
         specialization = serializer.validated_data['specialization']
+        city = serializer.validated_data['city']
+        # specialization = [int(x) for x in specialization]
+        # for x in specialization:
+        #     specialization=x.split(",")
+        # # product = [href,name,price]
         print(specialization)
-        user = User.objects.create_user(hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
+        user = User.objects.create_user(hospital_name=hospital_name,email=email,password=password,contact=contact,image=image,confirm_password=confirm_password,street_name=street_name,city=city)
         user.specialization.set(specialization)
         # if serializer.is_valid():
         #     user=User.objects.create_user(**serializer.validated_data)
@@ -344,20 +355,35 @@ class Make_Appointment(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AppointmentView(APIView):
-    def get(self,request,*args,**kwargs):
-        user = request.user
-        doctor = Appointment.objects.filter(hospital_name__username = user)
-        serializer = AppointmentSerializer(doctor, many=True)
-        return Response(serializer.data)
-    def post(self, request,user_id, *args,**kwargs):
-        user = User.objects.get(id=user_id)
-        appointment = Appointment.objects.filter(hospital_name__username=user)
-        serializer = AppointmentSerializer(appointment,many=True)
+class Make_HAppointment(APIView):
+    serializer_class = AppointmentHospitalSerializer
+    def post(self,request,*args,**kwargs): 
+        serializer = AppointmentHospitalSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AppointmentView(APIView):
+    def get(self,request,user_id,*args,**kwargs):
+        user = User.objects.get(id=user_id)
+        doctor = Appointment.objects.filter(hospital_name__email = user)
+        serializer = AppointmentSerializer(doctor, many=True)
+        return Response(serializer.data)
+    # def post(self, request,user_id, *args,**kwargs):
+    #     user = User.objects.get(id=user_id)
+    #     appointment = Appointment.objects.filter(hospital_name__username=user)
+    #     serializer = AppointmentSerializer(appointment,many=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class HAppointmentView(APIView):
+    def get(self,request,user_id,*args,**kwargs):
+        user = User.objects.get(id=user_id)
+        doctor = Appointment_Hospital.objects.filter(hospital_name__email = user)
+        serializer = AppointmentHospitalSerializer(doctor, many=True)
+        return Response(serializer.data)
 
 class AppointmentProfileView(APIView):
     serializer_class = AcceptRejectAppointmentSerializer
@@ -417,6 +443,7 @@ def room(request, room_name):
         'room_name_json': mark_safe(json.dumps(room_name)),
         'username': mark_safe(json.dumps(request.user.username)),
     })
+
 class HospitalRating(APIView):
     serializer_class = RatingSerializer
     def get_serializer_class(self):
@@ -498,6 +525,14 @@ class CityViewSet(viewsets.ModelViewSet):
     def get(self,request,*args,**kwargs):
         city = City.objects.all()
         serializer = SpecializationSerializer(city,many=True)
+        return Response(serializer.data)
+
+class SpecialityViewSet(viewsets.ModelViewSet):
+    queryset=Category.objects.all()
+    serializer_class=SpecialitySerializer
+    def get(self,request,*args,**kwargs):
+        category = Category.objects.all()
+        serializer = SpecialitySerializer(category,many=True)
         return Response(serializer.data)
 
 class category(APIView):

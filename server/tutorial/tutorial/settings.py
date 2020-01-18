@@ -214,20 +214,20 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'users.authentication.ExpiringTokenAuthentication',  # custom authentication class
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'users.authentication.ExpiringTokenAuthentication',  # custom authentication class
+    # ),
     #  'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework.authentication.TokenAuthentication',
     # ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
 
-    ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework.authentication.SessionAuthentication',
-    #     'rest_framework.authentication.BasicAuthentication',
     # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.JSONParser',

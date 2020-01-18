@@ -4,11 +4,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
-from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry,Specialization,City
+from .models import PhoneOtp,Rating,Enquiry,Message,Doctor,Appointment,AppointmentType,ReplyEnquiry,Specialization,City,Category,Appointment_Hospital,City
 from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
 from django.contrib.auth.hashers import make_password
+from django.core.serializers import serialize
 from multiselectfield import MultiSelectField
 from multiselectfield import MultiSelectField
 from django.contrib.auth import get_user_model
@@ -124,6 +125,20 @@ class LocationSerializer(serializers.ModelSerializer):
         model=City
         fields='__all__'
 
+class SpecialitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Category
+        fields='__all__'
+
+# class GenreRelatedField(serializers.RelatedField):
+#     def display_value(self, instance):
+#         return instance
+
+#     def to_representation(self, value):
+#         return str(value)
+
+#     def to_internal_value(self, data):
+#         return Genre.objects.get(name=data)
 
 class UserSerializer2(serializers.ModelSerializer):
     # username=serializers.CharField(
@@ -151,14 +166,18 @@ class UserSerializer2(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
     image = Base64ImageField(max_length=None)
     street_name = serializers.CharField(max_length=100)
+    # city = serializers.CharField(source='City.location', read_only=True)
+    city=serializers.StringRelatedField()
     contact=serializers.CharField(max_length=100)
-    specialization = serializers.SlugRelatedField(many=True,
-        queryset=Specialization.objects.all(),
-        slug_field='type')
+    specialization= serializers.PrimaryKeyRelatedField(many=True,read_only=False,queryset=Specialization.objects.all())
+    # specialization = serializers.SlugRelatedField(many=True,
+    #     queryset=Specialization.objects.all(),
+    #     # slug_field='type')
 
     class Meta:
         model=User
-        fields=['hospital_name','email','password','confirm_password','street_name','image','specialization','city','contact','id']
+        fields=['hospital_name','email','password','confirm_password','street_name','specialization','city','image','contact','id']
+        read_only_fields = ('specialization', )
 
     def validate(self, data):
         password = data.get('password')
@@ -199,7 +218,12 @@ class DoctorSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields=('contact','first_name','last_name','hospital_name')
+        fields='__all__'
+
+class AppointmentHospitalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment_Hospital
+        fields='__all__'
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -220,7 +244,7 @@ class PhoneOtpSerializer(serializers.ModelSerializer):
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enquiry
-        fields = ['Query','contact','hospital_name','id']
+        fields='__all__'
 
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
@@ -249,5 +273,5 @@ class HospitalProfileChangeSerializer(serializers.ModelSerializer):
 class doctorSerializer(serializers.ModelSerializer):
     class Meta:
         model=Doctor
-        image = Base64ImageField(max_length=None)
+        # image = Base64ImageField(max_length=None)
         fields =['first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image']
