@@ -8,7 +8,7 @@ urlpatterns = [
     path('signup_as_user/', SignUp.as_view()),
     path('signup_as_hospital/', Sign_Up_Hospital.as_view()),
     # path('hospitals/', Hospital.as_view()),
-    path('make_appointment/', Make_Appointment.as_view()),
+    url(r'make_appointment/(?P<doctor_id>[0-9]+)/$', Make_Appointment.as_view()),
     url(r'^appointment_view/(?P<user_id>[0-9]+)/(?P<status>[A-za-z]+)/$', AppointmentProfileView.as_view()),
     url(r'^appointment/(?P<user_id>[0-9]+)/$', AppointmentView.as_view()),
     url('make_enquiry/', Make_Enquiry.as_view()),
@@ -17,8 +17,8 @@ urlpatterns = [
     url('patient_enquiryview/', Patient_EnquiryView.as_view()),
     # url(r'^Patient_AppointmentView/(?P<user_id>[0-9]+)/$', EnquiryView.as_view()),
     url(r'^hospital_profile/',HospitalProfile.as_view(), name='hospital_profile'),
-    url(r'^hospital_doctor/(?P<user_id>[0-9]+)/$',HospitalDoctor.as_view(), name='hospital_profile'),
-    url(r'^hospital/',DoctorView.as_view(),name='hospital'),
+    # url(r'^hospital_doctor/(?P<user_id>[0-9]+)/$',HospitalDoctor.as_view(), name='hospital_profile'),
+    # url(r'^hospital/',DoctorView.as_view(),name='hospital'),
     path('message/', MessageView.as_view()),
     url(r'^resendotp/(?P<user_id>[0-9]+)/$',resendotp.as_view(), name='resend-otp'),
     path('', views.index, name='index'),
@@ -31,5 +31,5 @@ urlpatterns = [
     url(r'^hospital_name/(?P<user_id>[0-9]+)/$', Hospital_Name.as_view()),
     url(r'^delete/(?P<pk>\d+)',DeleteDoctors.as_view(), name='delete'),
     url(r'^delete_enquiry/(?P<pk>\d+)',DeleteEnquiry.as_view(), name='delete'),
-    path('<str:room_name>/', views.room, name='room')
+    # path('<str:room_name>/', views.room, name='room')
 ]

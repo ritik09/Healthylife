@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User,Group
 from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
@@ -9,6 +10,12 @@ from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
+from .compat import Serializer
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
+from rest_framework_jwt.compat import get_username_field, PasswordField
 User = get_user_model()
 
 class Base64ImageField(serializers.ImageField):
@@ -79,15 +86,15 @@ class UserSerializer1(serializers.ModelSerializer):
         required=True,
         style={'placeholder':'Last Name'}
     )
-    email=serializers.EmailField(
-        required=True,
-        allow_null=False,
-        style={'placeholder':'Email'},
-        validators=[UniqueValidator(queryset=User.objects.all(),
-        message ='Email already in use',
-        lookup='exact')]
+    # email=serializers.EmailField(
+    #     required=True,
+    #     allow_null=False,
+    #     style={'placeholder':'Email'},
+    #     validators=[UniqueValidator(queryset=User.objects.all(),
+    #     message ='Email already in use',
+    #     lookup='exact')]
         
-    )
+    # )
     password = serializers.CharField(style={'input_type': 'password'},required=True,
                                      allow_blank=False,allow_null=False)
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
@@ -100,7 +107,7 @@ class UserSerializer1(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['url','id','username','first_name','last_name','email','password','confirm_password']
+        fields=['url','id','username','first_name','last_name','password','confirm_password']
 
     def validate(self, data):
         password = data.get('password')
@@ -126,15 +133,15 @@ class UserSerializer2(serializers.ModelSerializer):
         required=True,
         style={'placeholder':'Hospital_name'}
     )
-    email=serializers.EmailField(
-        required=True,
-        allow_null=False,
-        style={'placeholder':'Email'},
-        validators=[UniqueValidator(queryset=User.objects.all(),
-        message ='Email already in use',
-        lookup='exact')]
+    # email=serializers.EmailField(
+    #     required=True,
+    #     allow_null=False,
+    #     style={'placeholder':'Email'},
+    #     validators=[UniqueValidator(queryset=User.objects.all(),
+    #     message ='Email already in use',
+    #     lookup='exact')]
         
-    )
+    # )
     password = serializers.CharField(style={'input_type': 'password'},required=True,
                                      allow_blank=False,allow_null=False)
     confirm_password = serializers.CharField(style={'input_type':'password'},required=True)
@@ -143,7 +150,7 @@ class UserSerializer2(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['username','hospital_name','email','password','confirm_password','street_name','image','id']
+        fields=['username','hospital_name','password','confirm_password','street_name','image','id','rating']
 
     def validate(self, data):
         password = data.get('password')
@@ -159,6 +166,54 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields =('username','password')
+
+class JSONWebTokenSerializer(Serializer):
+    def __init__(self, *args, **kwargs):
+        """
+        Dynamically add the USERNAME_FIELD to self.fields.
+        """
+        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+
+        self.fields[self.username_field] = serializers.CharField()
+        self.fields['password'] = PasswordField(write_only=True)
+
+    @property
+    def username_field(self):
+        return get_username_field()
+
+    def validate(self, attrs):
+        credentials = {
+            self.username_field: attrs.get(self.username_field),
+            'password': attrs.get('password')
+        }
+
+        if all(credentials.values()):
+            user = authenticate(**credentials)
+
+            if user:
+                if not user.is_active:
+                    msg = _('User account is disabled.')
+                    raise serializers.ValidationError(msg)
+
+                payload = jwt_payload_handler(user)
+                print(user)
+                print(user.street_name)
+
+                return {
+                    'token': str(user.street_name) + "|" + jwt_encode_handler(payload),
+                    'user': user
+                    # 'street_name' : user.street_name
+                }
+            else:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg)
+        else:
+            msg = _('Must include "{username_field}" and "password".')
+            msg = msg.format(username_field=self.username_field)
+            raise serializers.ValidationError(msg)
+#     # class Meta:
+#     #     model = User
+#     #     fields =('username','id')
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -176,7 +231,7 @@ class DoctorSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields=('username','contact','first_name','last_name','hospital_name')
+        fields=('username','id')
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:

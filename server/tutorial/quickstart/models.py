@@ -10,15 +10,16 @@ def nameFile(instance, filename):
     return '/'.join(['images', str(instance.name), filename])
 
 class User(AbstractUser):
-    username=models.CharField(max_length=200,unique=True)
-    hospital_name = models.CharField(max_length=100,null=True)
-    email=models.EmailField(max_length=200,help_text='Required')
+    username=models.CharField(max_length=200, unique = True)
+    hospital_name = models.CharField(max_length=100,null = True)
+    # email=models.EmailField(max_length=200,help_text='Required')
     first_name=models.CharField(max_length=200)
     last_name=models.CharField(max_length=200)
     password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50) 
     confirm_password=models.CharField(validators=[RegexValidator(regex='^.{6}$', message='Length has to be 6', code='nomatch')],max_length=50,null=True)
     image =models.ImageField(upload_to='pics',null='True')
-    street_name = models.CharField(max_length=100,null=True)
+    street_name = models.CharField(max_length=100,null=True)    
+    rating = models.IntegerField(null = True, blank = True)
 
 class Meta:
     verbose_name =('user')
@@ -87,10 +88,10 @@ class Message(models.Model):
 
 class Appointment(models.Model):
     username = models.CharField(max_length=100)
-    contact = models.CharField(max_length=15)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100,null=True)
-    hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
+    # contact = models.CharField(max_length=15)
+    # first_name = models.CharField(max_length=100)
+    # last_name = models.CharField(max_length=100,null=True)
+    # hospital_name = models.ForeignKey(User,on_delete=models.CASCADE)
 
 class AppointmentType(models.Model):
     Accepted = models.BooleanField(default=False)

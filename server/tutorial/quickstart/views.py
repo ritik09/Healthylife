@@ -20,7 +20,7 @@ from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer
+from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,UserSerializer2,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer, JSONWebTokenSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -34,16 +34,23 @@ from rest_framework import filters
 from rest_framework import status,permissions
 from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer
+from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer, JSONWebTokenSerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 from random import *
 from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry
 from django.contrib.auth import authenticate, login
+from rest_framework_jwt.views import obtain_jwt_token
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 import random
+from datetime import datetime
 from django.contrib.auth import get_user_model
+factory = APIRequestFactory()
+request = factory.get('/')
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -70,12 +77,11 @@ class SignUp(APIView):
         serializer = UserSerializer1(data = request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
-        email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         first_name = serializer.validated_data['first_name']
         last_name = serializer.validated_data['last_name']
         confirm_password = serializer.validated_data['confirm_password']
-        user = User.objects.create_user(username=username,email=email,password=password,first_name=first_name,last_name=last_name,confirm_password=confirm_password)
+        user = User.objects.create_user(username=username,password=password,first_name=first_name,last_name=last_name,confirm_password=confirm_password)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -87,7 +93,7 @@ class SignUp(APIView):
             'OTP': otp,
          })
         from_mail = EMAIL_HOST_USER
-        to_mail = [user.email]
+        to_mail = [user.username]
         send_mail(subject, message, from_mail, to_mail, fail_silently=False)
         return Response({'details': 'Please confirm your otp to complete registration.',
                                'user_id': user.id})
@@ -141,12 +147,12 @@ class resendotp(generics.CreateAPIView):
         data = PhoneOtp.objects.create(otp=otp,receiver= user)
         data.save()
         subject = 'Activate Your Account'
-        message = render_to_string('account_activate.html', {
+        message = render_to_string('quickstart/accountactivate.html', {
             'user': user,
             'OTP': otp,
         })
         from_mail = EMAIL_HOST_USER
-        to_mail = [user.email]
+        to_mail = [user.username]
         send_mail(subject, message, from_mail, to_mail, fail_silently=False)
         return Response({'details': user.username +',Please confirm your otp to complete registration.',
                          'user_id': user_id },
@@ -161,12 +167,13 @@ class Sign_Up_Hospital(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         hospital_name = serializer.validated_data['hospital_name']
-        email = serializer.validated_data['email']
+        # email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         confirm_password = serializer.validated_data['confirm_password']
         image = serializer.validated_data['image']
         street_name=serializer.validated_data['street_name']
-        user = User.objects.create_user(username=username,hospital_name=hospital_name,email=email,image=image,password=password,confirm_password=confirm_password,street_name=street_name)
+        rating=serializer.validated_data['rating']
+        user = User.objects.create_user(username=username,hospital_name=hospital_name,image=image,password=password,confirm_password=confirm_password,street_name=street_name,rating=rating)
         otp = randint(999,9999)
         data = PhoneOtp.objects.create(otp=otp,receiver=user)
         data.save()
@@ -178,11 +185,69 @@ class Sign_Up_Hospital(APIView):
             'OTP': otp,
          })
         from_mail = EMAIL_HOST_USER
-        to_mail = [user.email]
+        to_mail = [user.username]
         send_mail(subject, message, from_mail, to_mail, fail_silently=False)
         return Response({'details': 'Please confirm your otp to complete registration.',
                                'user_id': user.id})
 
+# class JSONWebTokenAPIView(APIView):
+#     """
+#     Base API View that various JWT interactions inherit from.
+#     """
+    
+#     # permission_classes = ()
+#     # authentication_classes = ()
+#     def get_serializer_context(self):
+#         """
+#         Extra context provided to the serializer class.
+#         """
+#         return {
+#             'request': self.request,
+#             'view': self,
+#         }
+
+#     def get_serializer_class(self):
+#         assert self.serializer_class is not None, (
+#             "'%s' should either include a `serializer_class` attribute, "
+#             "or override the `get_serializer_class()` method."
+#             % self.__class__.__name__)
+#         return self.serializer_class
+
+#     def get_serializer(self, *args, **kwargs):
+#         serializer_class = self.get_serializer_class()
+#         kwargs['context'] = self.get_serializer_context()
+#         return serializer_class(*args, **kwargs)
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         print("hellllllloooo")
+#         if serializer.is_valid():
+#             user = serializer.object.get('user') or request.user
+#             token = serializer.object.get('token')
+#             id = serializer.object.get('user_id')
+#             response_data = jwt_response_payload_handler(token, user, id,request)
+#             response = Response(response_data)
+#             if api_settings.JWT_AUTH_COOKIE:
+#                 expiration = (datetime.utcnow() +
+#                               api_settings.JWT_EXPIRATION_DELTA)
+#                 response.set_cookie(api_settings.JWT_AUTH_COOKIE,
+#                                     token,
+#                                     expires=expiration,
+#                                     httponly=True)
+#             return response
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class ObtainJSONWebToken(JSONWebTokenAPIView):
+#     serializer_class = JSONWebTokenSerializer
+
+# class MySpecialJWT(ObtainJSONWebToken):
+#     def post(self, request, *args, **kwargs):
+#         response = super().post(request, *args, **kwargs)
+#         # foo bar
+#         return response
+# obtain_jwt_token = ObtainJSONWebToken.as_view()
 
 class HospitalViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -203,6 +268,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
 class DoctorView(APIView):
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = DoctorSerializer
+    
     # def get(self,request,*args,**kwargs):
     #     username =self.request.user
     #     doctor = Doctor.objects.filter(hospital__username=username)
@@ -230,9 +296,9 @@ class HospitalProfile(APIView):
 class HospitalDoctor(APIView):
     serializer_class= DoctorSerializer
     def get(self,request,user_id,*args,**kwargs):
-        user = User.objects.get(id=user_id)
-        doctor = Doctor.objects.filter(hospital__username=user)
-        serializer = DoctorSerializer(data=doctor, many=True)
+        user = User.objects.get(id = user_id)
+        doctor = Doctor.objects.filter(hospital__username = user)
+        serializer = DoctorSerializer(data = doctor, many = True)
         serializer.is_valid()
         return Response(serializer.data)
 
@@ -249,10 +315,10 @@ class MessageView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Hospital_Name(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer2
     def get(self,request,user_id,*args,**kwargs):
-        user= User.objects.get(id=user_id)
+        user= User.objects.get(id = user_id)
         serializer =  UserSerializer2(user)
         return Response(serializer.data)
 
@@ -428,7 +494,7 @@ class HospitalRating(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class doctor(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = doctorSerializer
     def get(self,request,doctor_id,*args,**kwargs):
         doct = Doctor.objects.get(id=doctor_id)
@@ -513,3 +579,73 @@ class Psychiatrists(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class JSONWebTokenAPIView(APIView):
+    """
+    Base API View that various JWT interactions inherit from.
+    """
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'view': self,
+        }
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer.
+        Defaults to using `self.serializer_class`.
+        You may want to override this if you need to provide different
+        serializations depending on the incoming request.
+        (Eg. admins get full serialization, others get basic serialization)
+        """
+        assert self.serializer_class is not None, (
+            "'%s' should either include a `serializer_class` attribute, "
+            "or override the `get_serializer_class()` method."
+            % self.__class__.__name__)
+        return self.serializer_class
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.object.get('user') 
+            token = serializer.object.get('token')
+            # street_name = serializer.object.get('street_name') 
+            response_data = jwt_response_payload_handler(token, user, request)
+            response = Response(response_data)
+            if api_settings.JWT_AUTH_COOKIE:
+                expiration = (datetime.utcnow() + 
+                              api_settings.JWT_EXPIRATION_DELTA)
+                response.set_cookie(api_settings.JWT_AUTH_COOKIE,
+                                    token,
+                                    expires=expiration,
+                                    httponly=True)
+            return response
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ObtainJSONWebToken(JSONWebTokenAPIView):
+    serializer_class = JSONWebTokenSerializer
+
+class MySpecialJWT(ObtainJSONWebToken):
+    def post(self, request, *args, **kwargs):
+        print("hellllooo")
+        response = super().post(request, *args, **kwargs)
+        # foo bar
+        return response
+
+obtain_jwt_token = ObtainJSONWebToken.as_view()
