@@ -34,25 +34,18 @@ class PhoneOtp(models.Model):
     otp = models.IntegerField(null=False,blank=False)
     sent_on= models.DateTimeField(auto_now_add=True,null=True)
 
+class Category(models.Model):
+    cateory =  models.CharField(max_length=100)
+
 class Doctor(models.Model):
     first_name = models.CharField(max_length=100,null=True)
     last_name = models.CharField(max_length=100,null=True)
     Qualification = models.CharField(max_length=100)
     Years_of_Experience = models.IntegerField()
-    # category=[
-    #     ('Cardio','Cardiologists'),
-    #     ('Derma','Dermatalogist'),
-    #     ('Immuno','Immunologists'),
-    #     ('Endocrin','Endocrinologists'),
-    #     ('Neuro','Neurologist'),
-    #     ('Path','Pathologist'),
-    #     ('Psych','Psychiatrists')
-    # ]
-    Specialization = models.CharField(max_length=100,)
+    Specialization = models.ForeignKey(Category,on_delete=models.CASCADE,null=True)
     Contact = models.IntegerField()
     image = models.ImageField(upload_to='pics',null='True')
     hospital = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-
 
 
 class Rating(models.Model):

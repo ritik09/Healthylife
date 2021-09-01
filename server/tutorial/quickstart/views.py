@@ -40,7 +40,7 @@ from tutorial.settings import EMAIL_HOST_USER
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 from random import *
-from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry
+from .models import PhoneOtp,Doctor,PhoneOtp,Appointment,Message,Rating,Enquiry,ReplyEnquiry,Category
 from django.contrib.auth import authenticate, login
 from rest_framework_jwt.views import obtain_jwt_token
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -558,63 +558,10 @@ class DeleteDoctors(APIView):
         doctor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
-class Cardiologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Cardiologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Endocrinologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Endocrinologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Dermatalogist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Dermatalogist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Immunologists(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Immunologists)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Neurologist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Neurologist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Pathologist(APIView):
-       def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Pathologist)
-        serializer = DoctorSerializer(doctor,many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class Psychiatrists(APIView):
-    def post(self, request, *args,**kwargs):
-        doctor = Doctor.objects.filter(Specialization=Psychiatrists)
+class doctor_by_category(APIView):
+       def post(self, request, category_id, *args,**kwargs):
+        category = Category.objects.get(id = category_id)
+        doctor = Doctor.objects.filter(Specialization=category)
         serializer = DoctorSerializer(doctor,many=True)
         if serializer.is_valid():
             serializer.save()
