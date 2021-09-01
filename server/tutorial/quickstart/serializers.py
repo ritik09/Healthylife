@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 from phone_verify.serializers import SMSVerificationSerializer
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _
 from .compat import Serializer
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -150,7 +151,7 @@ class UserSerializer2(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields=['username','hospital_name','password','confirm_password','street_name','image','id','rating']
+        fields=['username','hospital_name','password','confirm_password','street_name','image','id']
 
     def validate(self, data):
         password = data.get('password')
@@ -218,7 +219,7 @@ class JSONWebTokenSerializer(Serializer):
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image')
+        fields=('first_name','last_name','Years_of_Experience','Qualification','Specialization','hospital','Contact','id','image')
 
     def validate_contact(self,contact):
         if len(contact)>10:
@@ -231,7 +232,12 @@ class DoctorSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields=('username','id')
+        fields=('username', 'doctor','status','id')
+
+class AppointmentReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields=('username', 'doctor','status')
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -267,14 +273,19 @@ class MessageSerializer(serializers.ModelSerializer):
 class UserProfileChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=['username','first_name','last_name','email','password','confirm_password']
+        fields=['username','first_name','last_name','email','password','confirm_password','id']
 
     validate_password = make_password
+
+class  DoctorProfileChangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields=['first_name','last_name','Qualification','Years_of_Experience','Specialization','Contact','image','hospital']
 
 class HospitalProfileChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=['username','hospital_name','email','password','confirm_password','street_name','image']
+        fields=['username','hospital_name','email','password','confirm_password','street_name','image','id']
 
     validate_password = make_password
 
@@ -282,4 +293,4 @@ class doctorSerializer(serializers.ModelSerializer):
     class Meta:
         model=Doctor
         image = Base64ImageField(max_length=None)
-        fields =['first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','id','image']
+        fields =['first_name','last_name','Years_of_Experience','Qualification','Specialization','Contact','hospital','image','id']

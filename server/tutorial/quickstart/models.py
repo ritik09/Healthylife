@@ -88,6 +88,8 @@ class Message(models.Model):
 
 class Appointment(models.Model):
     username = models.CharField(max_length=100)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE,null=True)
+    status = models.CharField(max_length = 100, null = True)
     # contact = models.CharField(max_length=15)
     # first_name = models.CharField(max_length=100)
     # last_name = models.CharField(max_length=100,null=True)

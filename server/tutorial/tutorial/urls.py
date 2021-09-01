@@ -23,7 +23,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views
-from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,HospitalDoctor,MySpecialJWT
+from quickstart.views import SignUp,validateotp,resendotp,MessageView,HospitalViewSet,DoctorView,HospitalProfile,HospitalDoctor,HospitalDoctors,MySpecialJWT
 from django.contrib.auth.views import LoginView
 from django_otp.forms import OTPAuthenticationForm
 # from quickstart.views import CustomAuthToken
@@ -47,8 +47,8 @@ urlpatterns = [
     path('', include(router.urls)),
     url(r'^login/', MySpecialJWT.as_view()),
     path('login_as_hospital/', MySpecialJWT.as_view()),
-    path('hospital/',DoctorView.as_view(),name='hospital'),
-    url(r'^hospital_doctor/(?P<user_id>[0-9]+)/$',HospitalDoctor.as_view(), name='hospital_profile'),
+    # path('hospital/',DoctorView.as_view(),name='hospital'),
+    url(r'^hospital_doctors/(?P<user_id>[0-9]+)/$',HospitalDoctors.as_view(), name='hospital_profile'),
     url(r'^validateotp/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     # url(r'^validateotp_hospital/(?P<user_id>[0-9]+)/$', validateotp.as_view(), name='validateotp'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
