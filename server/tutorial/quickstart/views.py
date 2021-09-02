@@ -20,7 +20,7 @@ from .models import User,PhoneOtp,Doctor
 from rest_framework_jwt.settings import api_settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import HttpResponse
-from quickstart.serializers import UserSerializer1,MessageSerializer,LoginSerializer,DoctorProfileChangeSerializer,UserSerializer2,doctorSerializer,AppointmentSerializer,AcceptRejectAppointmentSerializer,EnquirySerializer,ReplySerializer,UserProfileChangeSerializer,HospitalProfileChangeSerializer,LoginSerializer, JSONWebTokenSerializer,AppointmentReplySerializer
+from quickstart.serializers import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -34,7 +34,6 @@ from rest_framework import filters
 from rest_framework import status,permissions
 from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer1,UserSerializer2,PhoneOtpSerializer,AppointmentReplySerializer,DoctorProfileChangeSerializer,EnquirySerializer,DoctorSerializer,RatingSerializer, JSONWebTokenSerializer
 from django.core.mail import send_mail
 from tutorial.settings import EMAIL_HOST_USER
 from rest_framework.request import Request
@@ -297,8 +296,8 @@ class HospitalProfile(APIView):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class HospitalDoctor(APIView):
     serializer_class= DoctorSerializer
-    def get(self,request,*args,**kwargs):
-        user = request.user
+    def get(self,request,username,*args,**kwargs):
+        user = User.objects.get(username = username)
         doctor = Doctor.objects.filter(hospital = user.id)
         serializer = DoctorSerializer(data = doctor, many = True)
         serializer.is_valid()
@@ -379,9 +378,18 @@ class DeleteEnquiry(APIView):
 
 class Make_Appointment(APIView):
     serializer_class = AppointmentSerializer
-    def post(self,request,*args,**kwargs): 
+    def post(self,request,doctor_id,*args,**kwargs): 
         serializer = AppointmentSerializer(data=request.data)
         if serializer.is_valid():
+            user = serializer.validated_data.get('username')
+            appointment1 = Appointment.objects.filter(username = user)
+            appointments = appointment1.filter(doctor = doctor_id)
+            for appointment in appointments:
+                print(appointment.status)
+                if(appointment.status == None):
+                    return Response("You have already applied for the appointment")
+                # elif(i.status == "accept"):
+                #     return Response("You appointment is already accepted")
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -434,32 +442,34 @@ class UserProfileChangeAPIView(generics.RetrieveAPIView,
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
-class DoctorProfileChangeAPIView(generics.RetrieveAPIView,
-                               mixins.DestroyModelMixin,
-                               mixins.UpdateModelMixin):
+class DoctorProfileChangeAPIView(APIView):
     
     serializer_class = doctorSerializer
-    # parser_classes = (MultiPartParser, FormParser,)
-
-    # def get_object(self):
-    #     doctor_id = self.kwargs["doctor_id"]
-    #     print
-    #     doct = Doctor.objects.get(id = doctor_id)
-    #     # obj = get_object_or_404(Doctor, )
-    #     serializer = doctorSerializer(doct)
-    #     return Response(serializer.data)
-        # return obj
     def get(self,request,doctor_id,*args,**kwargs):
         doct = Doctor.objects.get(id=doctor_id)
         serializer = doctorSerializer(doct)
         return Response(serializer.data)
+    
+    def post(self, request, doctor_id, *args,**kwargs):
+        doctor = Doctor.objects.get(id = doctor_id)
+        serializer = doctorSerializer(data=request.data)
+        # data = serializer.da
+        if serializer.is_valid():
+            doctor.first_name = serializer.data.get('first_name')
+            doctor.last_name = serializer.data.get('last_name')
+            doctor.Years_of_Experience = serializer.data.get('Years_of_Experience')
+            doctor.Qualification = serializer.data.get('Qualification')
+            # doctor.Specialization= serializer.data.get('Specialization')
+            doctor.Contact = serializer.data.get('Contact')
+            # doctor.hospital = serializer.data.get('hospital')
+            # doctor.image = serializer.data.get('image')
+            if 'image' in request.FILES:           
+                doctor.image=request.FILES['image']
+                print(doctor.image)
+                doctor.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-        
 
 class UserProfileChangeHospitalAPIView(generics.RetrieveAPIView,
                                mixins.DestroyModelMixin,
@@ -506,7 +516,7 @@ class HospitalRating(APIView):
         rating_count = 0
         for rate in all_rating:
             rating_count += rate.star
-        avg_rating = rating_count/(total_rating+1)
+        avg_rating = rating_count/(total_rating + 1)
         if not self.request.user.is_anonymous:
             try:
                 rated = Rating.objects.get(user=self.request.user,hospital=hospital_id)

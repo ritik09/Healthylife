@@ -12,3 +12,4 @@ admin.site.register(Message)
 admin.site.register(Doctor)
 admin.site.register(Category)
 admin.site.register(ReplyEnquiry)
+
